@@ -1,0 +1,70 @@
+<div class="container">
+    <div class="row text-center">
+        <div class='col-xs-12'>
+            <h2>Partidas</h2>
+        </div>
+    </div>
+    <hr>
+    <div class="row text-center">
+        <div class='col-xs-12'>
+            <a class="btn btn-info" role="button" href="/crear-partida">
+                Crear partida
+            </a>
+        </div>
+    </div>
+    {% set day = 'new' %}
+    {% for game in games %}
+        {% if day != game.startTime|date("d M Y") %}
+            {% set day = game.startTime|date("d M Y") %}
+            <div class="row">
+                <div class='col-xs-12 col-md-3'>
+                    <h3>{{ game.startTime|date("l j F") }}</h3>
+                </div>
+            </div>
+        {% endif %}
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class='col-xs-12 col-md-3'>
+                        {{ game.startTime|date("H:i") }}
+                    </div>
+                    <div class='col-xs-12 col-md-6'>
+                        {{ game.name }} -
+                        <a target="_blank" href="https://boardgamegeek.com/boardgame/{{ game.bggId }}">ver en BGG</a>
+                    </div>
+                    <div class='col-xs-12 col-md-3 text-right'>
+                        Creado por {{ game.createdByName }}
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    {% if current_user_id == game.createdBy %}
+                        <div class='col-xs-12 col-md-3'>
+                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas">
+                                <span style="vertical-align: middle" class="material-symbols-outlined">edit</span>
+                                Editar
+                            </a>
+                        </div>
+                        <div class='col-xs-12 col-md-3'>
+                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas">
+                                <span style="vertical-align: middle" class="material-symbols-outlined">delete</span>
+                                Borrar
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class='col-xs-12 col-md-3'>
+                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas">
+                                <span style="vertical-align: middle"
+                                      class="material-symbols-outlined">play_circle</span>
+                                Unirse
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="panel-footer">
+            </div>
+        </div>
+    {% endfor %}
+</div>

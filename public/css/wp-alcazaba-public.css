@@ -1,0 +1,14 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+a.btn.btn-info.btn-game-list {
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+#main-wrap > #main-menu > li.menu-item > a  {
+    font-family: 'Poppins';
+}
