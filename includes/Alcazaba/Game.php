@@ -50,4 +50,38 @@ class Game
             $players
         );
     }
+
+    public function updateFromPost(array $data): self
+    {
+        $name = $data['game-name'] ?? '';
+        $bggId = $data['game-id'] ?? '';
+        $start = $data['game-datetime'] ?? null;
+        $players = (int) ($data['game-players'] ?? 0);
+        $open = isset($data['game-open']) ? true : false;
+
+        if ($open && $players < 1) {
+            throw new Exception('El número de jugadores es obligatorio para partidas abiertas.');
+        }
+
+        $startDt = DateTime::createFromFormat('Y-m-d H:i', $start);
+        if ($startDt === false) {
+            throw new Exception('Debe incluir una fecha válida.');
+        }
+
+        if (strlen($name) < 3) {
+            throw new Exception('El nombre debe tener mínimo 3 caracteres.');
+        }
+
+        return new self(
+            $this->id,
+            $this->createdOn,
+            $this->createdBy,
+            $this->createdByName,
+            $startDt,
+            $name,
+            $bggId,
+            $open,
+            $players
+        );
+    }
 }

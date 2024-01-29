@@ -1,8 +1,8 @@
-<form class="form-row" method="post" action="/lista-de-partidas?action=save">
+<form class="form-row" method="post" action="/lista-de-partidas?action={% if id is defined %}update{% else %}save{% endif %}">
     <div class="container text-center">
         <div class="row">
             <div class='col-sm-12 form-group'>
-                <h2>Crear partida</h2>
+                <h2>{% if id is defined %}Modificar{% else %}Crear{% endif %} partida</h2>
             </div>
         </div>
         {% if error is not empty %}
@@ -22,6 +22,7 @@
                     {% if sent is defined %}value="{{ sent['game-name'] }}"{% endif %}>
                 <input id="game-id" name="game-id" type="hidden"
                    {% if sent is defined %}value="{{ sent['game-id'] }}"{% endif %}>
+                <input id="id" name="id" type="hidden" value="{% if id is defined %}{{ id }}{% endif %}">
             </div>
         </div>
         <div class="row" id="game-spinner" style="display: none">
@@ -59,7 +60,7 @@
         </div>
         <div class="row margin-bottom-lg">
             <div class='form-group col-sm-12'>
-                <input type="submit" value="Crear partida">
+                <input type="submit" value="{% if id is defined %}Modificar{% else %}Crear{% endif %} partida">
             </div>
         </div>
     </div>
@@ -111,7 +112,7 @@
                 );
             },
             minLength: 3,
-            delay:     1000,
+            delay:     500,
             select:    function (event, ui) {
                 jQuery("#game-id").val(ui.item.id);
                 jQuery("#game-link-a")

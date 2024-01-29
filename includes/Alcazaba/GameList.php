@@ -48,7 +48,7 @@ class GameList
         try {
             $game = Game::fromPost($_POST);
 
-            $repo->saveGame($game);
+            $repo->create($game);
 
             wp_redirect('/lista-de-partidas');
             exit;
@@ -58,6 +58,60 @@ class GameList
         }
 
         return self::fetchTemplate('create', $data);
+    }
+
+    public static function update(): string
+    {
+        self::redirectIfNotLoggedIn();
+
+        $data = ['error' => ''];
+        $repo = new GameRepository();
+
+        try {
+            $id = (int)$_REQUEST['id'];
+            $game = $repo->get($id);
+
+            if ($game === null || $game->createdBy !== wp_get_current_user()->ID) {
+                return 'No eres el creador de la partida que intentas borrar.';
+            }
+
+            $updatedGame = $game->updateFromPost($_POST);
+
+            $repo->update($updatedGame);
+
+            wp_redirect('/lista-de-partidas');
+            exit;
+        } catch (Throwable $e) {
+            $data['sent'] = $_POST;
+            $data['error'] = $e->getMessage();
+        }
+
+        return self::fetchTemplate('create', $data);
+    }
+
+    public static function edit(): string
+    {
+        self::redirectIfNotLoggedIn();
+
+        $data = ['error' => ''];
+        $repo = new GameRepository();
+
+        $id = (int)$_REQUEST['id'];
+        $game = $repo->get($id);
+
+        if ($game === null || $game->createdBy !== wp_get_current_user()->ID) {
+            return 'No eres el creador de la partida que intentas modificar.';
+        }
+
+        $data['game-name'] = $game->name;
+        $data['game-id'] = $game->bggId;
+        $data['game-datetime'] = $game->startTime->format('Y-m-d H:i');
+        $data['game-players'] = $game->maxPlayers;
+        if ($game->joinable) {
+            $data['game-open'] = 1;
+        }
+
+        return self::fetchTemplate('create', ['sent' => $data, 'id' => $game->id]);
     }
 
     public static function ajaxListGames(): void
@@ -112,6 +166,14 @@ class GameList
 
         if ($action === 'delete') {
             return self::delete();
+        }
+
+        if ($action === 'edit') {
+            return self::edit();
+        }
+
+        if ($action === 'update') {
+            return self::update();
         }
 
         return self::fetchTemplate(

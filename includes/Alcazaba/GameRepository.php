@@ -55,7 +55,7 @@ class GameRepository
         $users = get_users();
 
         foreach ($users as $user) {
-            if ($user->data->ID === $id) {
+            if ((int) $user->data->ID === $id) {
                 return $user->user_nicename;
             }
         }
@@ -99,7 +99,7 @@ class GameRepository
         $wpdb->query("DELETE FROM {$this->tableName()} WHERE id = $id");
     }
 
-    public function saveGame(Game $game): void
+    public function create(Game $game): void
     {
         global $wpdb;
 
@@ -114,6 +114,27 @@ class GameRepository
                 'joinable' => $game->joinable,
                 'max_players' => $game->maxPlayers,
             )
+        );
+
+        if ($res === false) {
+            throw new RuntimeException($wpdb->print_error());
+        }
+    }
+
+    public function update(Game $game): void
+    {
+        global $wpdb;
+
+        $res = $wpdb->update(
+            $this->tableName(),
+            array(
+                'bgg_id' => $game->bggId,
+                'start_time' => $game->startTime->format(DateTime::ATOM),
+                'name' => $game->name,
+                'joinable' => $game->joinable,
+                'max_players' => $game->maxPlayers,
+            ),
+            ['id' => $game->id]
         );
 
         if ($res === false) {
