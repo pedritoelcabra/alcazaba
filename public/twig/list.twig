@@ -7,7 +7,7 @@
     <hr>
     <div class="row text-center">
         <div class='col-xs-12'>
-            <a class="btn btn-info" role="button" href="/crear-partida">
+            <a class="btn btn-info" role="button" href="/lista-de-partidas?action=create">
                 Crear partida
             </a>
         </div>
@@ -41,20 +41,20 @@
                 <div class="row">
                     {% if current_user_id == game.createdBy %}
                         <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas">
+                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=edit&id={{ game.id }}">
                                 <span style="vertical-align: middle" class="material-symbols-outlined">edit</span>
                                 Editar
                             </a>
                         </div>
                         <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas">
+                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=delete&id={{ game.id }}">
                                 <span style="vertical-align: middle" class="material-symbols-outlined">delete</span>
                                 Borrar
                             </a>
                         </div>
                     {% else %}
                         <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas">
+                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=join&id={{ game.id }}">
                                 <span style="vertical-align: middle"
                                       class="material-symbols-outlined">play_circle</span>
                                 Unirse

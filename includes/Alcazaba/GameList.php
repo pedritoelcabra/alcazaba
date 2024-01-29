@@ -16,20 +16,45 @@ class GameList
     {
         self::redirectIfNotLoggedIn();
 
+        return self::fetchTemplate('create', []);
+    }
+
+    public static function delete(): string
+    {
+        self::redirectIfNotLoggedIn();
+
+        $repo = new GameRepository();
+
+        $id = (int)$_REQUEST['id'];
+        $game = $repo->get($id);
+
+        if ($game === null || $game->createdBy !== wp_get_current_user()->ID) {
+            return 'No eres el creador de la partida que intentas borrar.';
+        }
+
+        $repo->delete($id);
+
+        wp_redirect('/lista-de-partidas');
+        exit;
+    }
+
+    public static function save(): string
+    {
+        self::redirectIfNotLoggedIn();
+
         $data = ['error' => ''];
+        $repo = new GameRepository();
 
-        if (isset($_POST['game-id'])) {
-            try {
-                $game = Game::fromPost($_POST);
+        try {
+            $game = Game::fromPost($_POST);
 
-                (new GameRepository())->saveGame($game);
+            $repo->saveGame($game);
 
-                wp_redirect('/lista-de-partidas');
-                exit;
-            } catch (Throwable $e) {
-                $data['sent'] = $_POST;
-                $data['error'] = $e->getMessage();
-            }
+            wp_redirect('/lista-de-partidas');
+            exit;
+        } catch (Throwable $e) {
+            $data['sent'] = $_POST;
+            $data['error'] = $e->getMessage();
         }
 
         return self::fetchTemplate('create', $data);
@@ -75,14 +100,26 @@ class GameList
     {
         self::redirectIfNotLoggedIn();
 
-        $users = get_users();
+        $action = $_REQUEST['action'] ?? '';
+
+        if ($action === 'create') {
+            return self::createGameForm();
+        }
+
+        if ($action === 'save') {
+            return self::save();
+        }
+
+        if ($action === 'delete') {
+            return self::delete();
+        }
 
         return self::fetchTemplate(
             'list',
             [
-                'games' => (new GameRepository())->getAllGames($users),
-                'users' => $users,
-                'current_user_id' => (int) wp_get_current_user()->ID
+                'games' => (new GameRepository())->getAllGames(),
+                'users' => get_users(),
+                'current_user_id' => wp_get_current_user()->ID
             ]
         );
     }
