@@ -29,6 +29,8 @@
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
+ob_start();
+
 
 /**
  * Currently plugin version.

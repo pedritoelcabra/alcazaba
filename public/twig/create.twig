@@ -100,12 +100,12 @@
             jQuery("#game-link").show();
         }
 
+        let host = window.location.protocol + "//" + window.location.host;
         jQuery("#game-name").autocomplete({
             source:    function (request, response) {
-                jQuery.post('https://alcazabadejuegos.es/wp-admin/admin-ajax.php',
+                jQuery.post(host + '/wp-admin/admin-ajax.php',
                     {action: 'search_game', query: request.term},
                     function (data) {
-                        console.log(data);
                         response(data);
                     },
                 );
