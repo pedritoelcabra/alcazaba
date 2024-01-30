@@ -1,5 +1,6 @@
 <?php
 
+use includes\Alcazaba\GamePlayerRepository;
 use Timber\Timber;
 
 class GameRepository
@@ -25,6 +26,7 @@ class GameRepository
         $results = $wpdb->get_results("SELECT * FROM {$this->tableName()} WHERE 1");
 
         $games = [];
+        $playerRepo = new GamePlayerRepository();
         foreach ($results as $result) {
             $games[] = new Game(
                 $result->id,
@@ -35,7 +37,8 @@ class GameRepository
                 $result->name,
                 $result->bgg_id,
                 $result->joinable,
-                $result->max_players
+                $result->max_players,
+                $playerRepo->forGame($result->id),
             );
         }
 
@@ -76,6 +79,7 @@ class GameRepository
             return null;
         }
 
+        $playerRepo = new GamePlayerRepository();
         return new Game(
             $result->id,
             DateTime::createFromFormat('Y-m-d H:i:s', $result->created_on),
@@ -85,7 +89,8 @@ class GameRepository
             $result->name,
             $result->bgg_id,
             $result->joinable,
-            $result->max_players
+            $result->max_players,
+            $playerRepo->forGame($result->id)
         );
     }
 
@@ -99,7 +104,7 @@ class GameRepository
         $wpdb->query("DELETE FROM {$this->tableName()} WHERE id = $id");
     }
 
-    public function create(Game $game): void
+    public function create(Game $game): int
     {
         global $wpdb;
 
@@ -119,6 +124,8 @@ class GameRepository
         if ($res === false) {
             throw new RuntimeException($wpdb->print_error());
         }
+
+        return $wpdb->insert_id;
     }
 
     public function update(Game $game): void

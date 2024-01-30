@@ -2,6 +2,9 @@
 
 class Game
 {
+    /**
+     * @param GamePlayer[] $players
+     */
     public function __construct(
         public readonly ?int $id,
         public readonly DateTime $createdOn,
@@ -12,6 +15,7 @@ class Game
         public readonly ?string $bggId,
         public readonly bool $joinable,
         public readonly int $maxPlayers,
+        public readonly array $players = [],
     ) {
     }
 
@@ -83,5 +87,42 @@ class Game
             $open,
             $players
         );
+    }
+
+    public function currentPlayers(): int
+    {
+        $count = 0;
+        foreach ($this->players as $player) {
+            $count += $player->amount;
+        }
+
+        return $count;
+    }
+
+    public function hasFreeSlots(): bool
+    {
+        return $this->joinable && $this->currentPlayers() < $this->maxPlayers;
+    }
+
+    public function playerInGame(int $id): bool
+    {
+        foreach ($this->players as $player) {
+            if ($player->playerId === $id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function playerHasOthers(int $id): bool
+    {
+        foreach ($this->players as $player) {
+            if ($player->playerId === $id && $player->amount > 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use includes\Alcazaba\GamePlayerRepository;
 use Timber\Timber;
 
 class GameList
@@ -19,9 +20,14 @@ class GameList
         $game = $repo->get($gameId);
 
         if ($game === null || $game->createdBy !== wp_get_current_user()->ID) {
-            wp_redirect('/lista-de-partidas?message=unauthorized');
-            exit;
+            self::unauthorized();
         }
+    }
+
+    private static function unauthorized(): void
+    {
+        wp_redirect('/lista-de-partidas?message=unauthorized');
+        exit;
     }
 
     public static function createGameForm(): string
@@ -44,17 +50,111 @@ class GameList
         exit;
     }
 
+    public static function join(): string
+    {
+        self::redirectIfNotLoggedIn();
+        $gameId = (int)$_REQUEST['id'];
+        $playerId = wp_get_current_user()->ID;
+
+        $repo = new GameRepository();
+        $game = $repo->get($gameId);
+
+        if ($game->playerInGame($playerId)) {
+            self::unauthorized();
+        }
+
+        if (! $game->hasFreeSlots()) {
+            self::unauthorized();
+        }
+
+        $playerRepo = new GamePlayerRepository();
+        $playerRepo->joinGame($gameId, $playerId);
+
+        wp_redirect('/lista-de-partidas');
+        exit;
+    }
+
+    public static function leave(): string
+    {
+        self::redirectIfNotLoggedIn();
+        $gameId = (int)$_REQUEST['id'];
+        $playerId = wp_get_current_user()->ID;
+
+        $repo = new GameRepository();
+        $game = $repo->get($gameId);
+
+        if (! $game->playerInGame($playerId)) {
+            self::unauthorized();
+        }
+
+        if ($game->createdBy === $playerId) {
+            self::unauthorized();
+        }
+
+        $playerRepo = new GamePlayerRepository();
+        $playerRepo->leaveGame($gameId, $playerId);
+
+        wp_redirect('/lista-de-partidas');
+        exit;
+    }
+
+    public static function plus(): string
+    {
+        self::redirectIfNotLoggedIn();
+        $gameId = (int)$_REQUEST['id'];
+        $playerId = wp_get_current_user()->ID;
+
+        $repo = new GameRepository();
+        $game = $repo->get($gameId);
+
+        if (! $game->playerInGame(wp_get_current_user()->ID)) {
+            self::unauthorized();
+        }
+
+        if (! $game->hasFreeSlots()) {
+            self::unauthorized();
+        }
+
+        $playerRepo = new GamePlayerRepository();
+        $playerRepo->increaseAmount($gameId, $playerId);
+
+        wp_redirect('/lista-de-partidas');
+        exit;
+    }
+
+    public static function minus(): string
+    {
+        self::redirectIfNotLoggedIn();
+        $gameId = (int)$_REQUEST['id'];
+        $playerId = wp_get_current_user()->ID;
+
+        $repo = new GameRepository();
+        $game = $repo->get($gameId);
+
+        if (! $game->playerHasOthers(wp_get_current_user()->ID)) {
+            self::unauthorized();
+        }
+
+        $playerRepo = new GamePlayerRepository();
+        $playerRepo->decreaseAmount($gameId, $playerId);
+
+        wp_redirect('/lista-de-partidas');
+        exit;
+    }
+
     public static function save(): string
     {
         self::redirectIfNotLoggedIn();
 
         $data = ['error' => ''];
-        $repo = new GameRepository();
+        $gameRepo = new GameRepository();
+        $playerRepo = new GamePlayerRepository();
 
         try {
             $game = Game::fromPost($_POST);
 
-            $repo->create($game);
+            $gameId = $gameRepo->create($game);
+            $playerRepo->joinGame($gameId, wp_get_current_user()->ID);
 
             wp_redirect('/lista-de-partidas');
             exit;
@@ -172,6 +272,22 @@ class GameList
 
         if ($action === 'update') {
             return self::update();
+        }
+
+        if ($action === 'plus') {
+            return self::plus();
+        }
+
+        if ($action === 'minus') {
+            return self::minus();
+        }
+
+        if ($action === 'join') {
+            return self::join();
+        }
+
+        if ($action === 'leave') {
+            return self::leave();
         }
 
         return self::fetchTemplate(
