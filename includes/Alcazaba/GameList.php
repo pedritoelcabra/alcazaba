@@ -12,6 +12,18 @@ class GameList
         }
     }
 
+    private static function checkOwnerPermissions(int $gameId)
+    {
+        $repo = new GameRepository();
+
+        $game = $repo->get($gameId);
+
+        if ($game === null || $game->createdBy !== wp_get_current_user()->ID) {
+            wp_redirect('/lista-de-partidas?message=unauthorized');
+            exit;
+        }
+    }
+
     public static function createGameForm(): string
     {
         self::redirectIfNotLoggedIn();
@@ -22,16 +34,10 @@ class GameList
     public static function delete(): string
     {
         self::redirectIfNotLoggedIn();
+        $id = (int)$_REQUEST['id'];
+        self::checkOwnerPermissions($id);
 
         $repo = new GameRepository();
-
-        $id = (int)$_REQUEST['id'];
-        $game = $repo->get($id);
-
-        if ($game === null || $game->createdBy !== wp_get_current_user()->ID) {
-            return 'No eres el creador de la partida que intentas borrar.';
-        }
-
         $repo->delete($id);
 
         wp_redirect('/lista-de-partidas');
@@ -63,20 +69,15 @@ class GameList
     public static function update(): string
     {
         self::redirectIfNotLoggedIn();
+        $id = (int)$_REQUEST['id'];
+        self::checkOwnerPermissions($id);
 
         $data = ['error' => ''];
         $repo = new GameRepository();
 
         try {
-            $id = (int)$_REQUEST['id'];
             $game = $repo->get($id);
-
-            if ($game === null || $game->createdBy !== wp_get_current_user()->ID) {
-                return 'No eres el creador de la partida que intentas borrar.';
-            }
-
             $updatedGame = $game->updateFromPost($_POST);
-
             $repo->update($updatedGame);
 
             wp_redirect('/lista-de-partidas');
@@ -92,16 +93,13 @@ class GameList
     public static function edit(): string
     {
         self::redirectIfNotLoggedIn();
+        $id = (int)$_REQUEST['id'];
+        self::checkOwnerPermissions($id);
 
         $data = ['error' => ''];
         $repo = new GameRepository();
 
-        $id = (int)$_REQUEST['id'];
         $game = $repo->get($id);
-
-        if ($game === null || $game->createdBy !== wp_get_current_user()->ID) {
-            return 'No eres el creador de la partida que intentas modificar.';
-        }
 
         $data['game-name'] = $game->name;
         $data['game-id'] = $game->bggId;
@@ -181,6 +179,7 @@ class GameList
             [
                 'games' => (new GameRepository())->getAllGames(),
                 'users' => get_users(),
+                'error' => ($_GET['message'] ?? '') === 'unauthorized' ? 'No permitido.' : '',
                 'current_user_id' => wp_get_current_user()->ID
             ]
         );
