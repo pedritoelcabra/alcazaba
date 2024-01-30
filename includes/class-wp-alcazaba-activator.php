@@ -24,11 +24,15 @@ class Plugin_Name_Activator
     {
         global $wpdb;
 
-        $table_name = $wpdb->prefix . "partidas_alcazaba";
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+        $tablePartidas = $wpdb->prefix . "partidas_alcazaba";
+        $tableJugadores = $wpdb->prefix . "jugadores_alcazaba";
+        $tableUsers = $wpdb->prefix . "users";
         $charset_collate = $wpdb->get_charset_collate();
 
         $sql = <<<EOF
-CREATE TABLE IF NOT EXISTS $table_name (
+CREATE TABLE IF NOT EXISTS $tablePartidas (
       id mediumint(9) NOT NULL AUTO_INCREMENT,
       created_on datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
       created_by bigint(20) NOT NULL,
@@ -39,9 +43,23 @@ CREATE TABLE IF NOT EXISTS $table_name (
       max_players TINYINT(2) DEFAULT 0,
       PRIMARY KEY  (id)
     ) $charset_collate;
+CREATE TABLE IF NOT EXISTS $tableJugadores (
+      id mediumint(9) NOT NULL AUTO_INCREMENT,
+      created_on datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+      player_id bigint(20) unsigned NOT NULL,
+      game_id mediumint(9) NOT NULL,
+      amount TINYINT(2) DEFAULT 1,
+      PRIMARY KEY  (id),
+      CONSTRAINT `fk_player`
+        FOREIGN KEY (player_id) REFERENCES $tableUsers (ID)
+        ON DELETE CASCADE
+        ON UPDATE RESTRICT,
+      CONSTRAINT `fk_game`
+        FOREIGN KEY (game_id) REFERENCES $tablePartidas (id)
+        ON DELETE CASCADE
+        ON UPDATE RESTRICT
+    ) $charset_collate;
 EOF;
-
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta($sql);
     }
 }
