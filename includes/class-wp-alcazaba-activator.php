@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS $tablePartidas (
       created_on datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
       created_by bigint(20) NOT NULL,
       bgg_id bigint(20) DEFAULT NULL,
+      gcal_id varchar(255) DEFAULT NULL,
       start_time datetime NOT NULL,
       name varchar(55) NOT NULL,
       joinable TINYINT(1) DEFAULT FALSE,

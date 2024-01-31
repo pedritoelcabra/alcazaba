@@ -44,6 +44,11 @@ class GameList
         self::checkOwnerPermissions($id);
 
         $repo = new GameRepository();
+
+        $game = $repo->get($id);
+        if ($game !== null && $game->gcalId !== null) {
+            GoogleSync::deleteFromCalendar($game->gcalId);
+        }
         $repo->delete($id);
 
         wp_redirect('/lista-de-partidas');
@@ -63,12 +68,17 @@ class GameList
             self::unauthorized();
         }
 
-        if (! $game->hasFreeSlots()) {
+        if (!$game->hasFreeSlots()) {
             self::unauthorized();
         }
 
         $playerRepo = new GamePlayerRepository();
         $playerRepo->joinGame($gameId, $playerId);
+
+        if ($game->gcalId !== null) {
+            $game = $repo->get($gameId);
+            GoogleSync::updateInCalendar($game);
+        }
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -83,7 +93,7 @@ class GameList
         $repo = new GameRepository();
         $game = $repo->get($gameId);
 
-        if (! $game->playerInGame($playerId)) {
+        if (!$game->playerInGame($playerId)) {
             self::unauthorized();
         }
 
@@ -93,6 +103,11 @@ class GameList
 
         $playerRepo = new GamePlayerRepository();
         $playerRepo->leaveGame($gameId, $playerId);
+
+        if ($game->gcalId !== null) {
+            $game = $repo->get($gameId);
+            GoogleSync::updateInCalendar($game);
+        }
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -107,16 +122,21 @@ class GameList
         $repo = new GameRepository();
         $game = $repo->get($gameId);
 
-        if (! $game->playerInGame(wp_get_current_user()->ID)) {
+        if (!$game->playerInGame(wp_get_current_user()->ID)) {
             self::unauthorized();
         }
 
-        if (! $game->hasFreeSlots()) {
+        if (!$game->hasFreeSlots()) {
             self::unauthorized();
         }
 
         $playerRepo = new GamePlayerRepository();
         $playerRepo->increaseAmount($gameId, $playerId);
+
+        if ($game->gcalId !== null) {
+            $game = $repo->get($gameId);
+            GoogleSync::updateInCalendar($game);
+        }
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -131,12 +151,17 @@ class GameList
         $repo = new GameRepository();
         $game = $repo->get($gameId);
 
-        if (! $game->playerHasOthers(wp_get_current_user()->ID)) {
+        if (!$game->playerHasOthers(wp_get_current_user()->ID)) {
             self::unauthorized();
         }
 
         $playerRepo = new GamePlayerRepository();
         $playerRepo->decreaseAmount($gameId, $playerId);
+
+        if ($game->gcalId !== null) {
+            $game = $repo->get($gameId);
+            GoogleSync::updateInCalendar($game);
+        }
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -155,6 +180,12 @@ class GameList
 
             $gameId = $gameRepo->create($game);
             $playerRepo->joinGame($gameId, wp_get_current_user()->ID);
+
+            $game = $gameRepo->get($gameId);
+            if ($game !== null) {
+                $gcalId = GoogleSync::createInCalendar($game);
+                $gameRepo->setGcalId($gameId, $gcalId);
+            }
 
             wp_redirect('/lista-de-partidas');
             exit;
@@ -179,6 +210,11 @@ class GameList
             $game = $repo->get($id);
             $updatedGame = $game->updateFromPost($_POST);
             $repo->update($updatedGame);
+
+            if ($game->gcalId !== null) {
+                $game = $repo->get($id);
+                GoogleSync::updateInCalendar($game);
+            }
 
             wp_redirect('/lista-de-partidas');
             exit;
@@ -296,7 +332,7 @@ class GameList
                 'games' => (new GameRepository())->getAllGames(),
                 'users' => get_users(),
                 'error' => ($_GET['message'] ?? '') === 'unauthorized' ? 'No permitido.' : '',
-                'current_user_id' => wp_get_current_user()->ID
+                'current_user_id' => wp_get_current_user()->ID,
             ]
         );
     }

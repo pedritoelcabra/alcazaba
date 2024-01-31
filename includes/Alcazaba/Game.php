@@ -13,6 +13,7 @@ class Game
         public readonly DateTime $startTime,
         public readonly string $name,
         public readonly ?string $bggId,
+        public readonly ?string $gcalId,
         public readonly bool $joinable,
         public readonly int $maxPlayers,
         public readonly array $players = [],
@@ -33,7 +34,7 @@ class Game
 
         $currentUser = wp_get_current_user();
 
-        $startDt = DateTime::createFromFormat('Y-m-d H:i', $start);
+        $startDt = DateTime::createFromFormat('Y-m-d H:i', $start, new DateTimeZone('Europe/Madrid'));
         if ($startDt === false) {
             throw new Exception('Debe incluir una fecha válida.');
         }
@@ -50,6 +51,7 @@ class Game
             $startDt,
             $name,
             $bggId,
+            null,
             $open,
             $players
         );
@@ -67,7 +69,7 @@ class Game
             throw new Exception('El número de jugadores es obligatorio para partidas abiertas.');
         }
 
-        $startDt = DateTime::createFromFormat('Y-m-d H:i', $start);
+        $startDt = DateTime::createFromFormat('Y-m-d H:i', $start, new DateTimeZone('Europe/Madrid'));
         if ($startDt === false) {
             throw new Exception('Debe incluir una fecha válida.');
         }
@@ -84,6 +86,7 @@ class Game
             $startDt,
             $name,
             $bggId,
+            $this->gcalId,
             $open,
             $players
         );
@@ -124,5 +127,23 @@ class Game
         }
 
         return false;
+    }
+
+    public function simpleHtmlDescription(): string
+    {
+        if (! $this->joinable) {
+            return 'Partida cerrada';
+        }
+
+        $description = "Creada por " . $this->createdByName;
+        $description .= '<br />';
+        $description .= 'Participantes (' . $this->currentPlayers() . '/' . $this->maxPlayers . '):';
+        $description .= '<br />';
+        foreach ($this->players as $player) {
+            $description .= '- ' . $player->name;
+            $description .= '<br />';
+        }
+
+        return $description;
     }
 }

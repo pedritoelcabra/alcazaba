@@ -30,12 +30,13 @@ class GameRepository
         foreach ($results as $result) {
             $games[] = new Game(
                 $result->id,
-                DateTime::createFromFormat('Y-m-d H:i:s', $result->created_on),
+                DateTime::createFromFormat('Y-m-d H:i:s', $result->created_on, new DateTimeZone('Europe/Madrid')),
                 $result->created_by,
                 $this->getUserName($result->created_by),
-                DateTime::createFromFormat('Y-m-d H:i:s', $result->start_time),
+                DateTime::createFromFormat('Y-m-d H:i:s', $result->start_time, new DateTimeZone('Europe/Madrid')),
                 $result->name,
                 $result->bgg_id,
+                $result->gcal_id,
                 $result->joinable,
                 $result->max_players,
                 $playerRepo->forGame($result->id),
@@ -66,6 +67,19 @@ class GameRepository
         return self::SYSTEM_USER;
     }
 
+    public function setGcalId(int $id, string $gcalId): void
+    {
+        global $wpdb;
+
+        $wpdb->update(
+            $this->tableName(),
+            array(
+                'gcal_id' => $gcalId,
+            ),
+            ['id' => $id]
+        );
+    }
+
     /**
      * @param stdClass[] $users
      */
@@ -82,12 +96,13 @@ class GameRepository
         $playerRepo = new GamePlayerRepository();
         return new Game(
             $result->id,
-            DateTime::createFromFormat('Y-m-d H:i:s', $result->created_on),
+            DateTime::createFromFormat('Y-m-d H:i:s', $result->created_on, new DateTimeZone('Europe/Madrid')),
             $result->created_by,
             $userNames[(int) $result->created_by] ?? self::SYSTEM_USER,
-            DateTime::createFromFormat('Y-m-d H:i:s', $result->start_time),
+            DateTime::createFromFormat('Y-m-d H:i:s', $result->start_time, new DateTimeZone('Europe/Madrid')),
             $result->name,
             $result->bgg_id,
+            $result->gcal_id,
             $result->joinable,
             $result->max_players,
             $playerRepo->forGame($result->id)

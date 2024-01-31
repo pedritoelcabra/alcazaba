@@ -47,7 +47,7 @@
             <div class='form-group col-sm-12'>
                 <label for="game-open" class="control-label">Permitir a otros unirse</label>
                 <div style="clear: both;"></div>
-                <input id="game-open" name="game-open" type="checkbox" {% if sent is defined %}checked="checked"{% endif %}>
+                <input id="game-open" name="game-open" type="checkbox" {% if sent is defined and sent['game-open'] %}checked="checked"{% endif %}>
             </div>
         </div>
         <div class="row" id="player-number" style="display: none">
@@ -122,6 +122,7 @@
             },
             search:    function () {
                 jQuery('#game-spinner').show();
+                jQuery('#game-spinner')[0].scrollIntoView();
             },
             response:  function () {
                 jQuery('#game-spinner').hide();
