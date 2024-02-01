@@ -99,7 +99,9 @@ class GoogleSync
 
     private static function url(): string
     {
-        return 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . '?page=wp-alcazaba/admin.php';
+        $http = $_SERVER['HTTP_HOST'] === 'localhost' ? 'http://' : 'https://';
+
+        return $http . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . '?page=wp-alcazaba/admin.php';
     }
 
     private function getCalendars(): array
@@ -133,7 +135,8 @@ class GoogleSync
             $cal = [];
             try {
                 $cal = $sync->getCalendars();
-            } catch (Throwable) {}
+            } catch (Throwable) {
+            }
             if ($cal !== []) {
                 $content = '<br />Conectado a Google!';
             } else {

@@ -15,6 +15,10 @@ class GameList
 
     private static function checkOwnerPermissions(int $gameId)
     {
+        if (current_user_can('administrator')) {
+            return;
+        }
+
         $repo = new GameRepository();
 
         $game = $repo->get($gameId);
@@ -333,6 +337,7 @@ class GameList
                 'users' => get_users(),
                 'error' => ($_GET['message'] ?? '') === 'unauthorized' ? 'No permitido.' : '',
                 'current_user_id' => wp_get_current_user()->ID,
+                'is_admin' => current_user_can('administrator'),
             ]
         );
     }

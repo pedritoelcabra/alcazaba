@@ -67,8 +67,12 @@ class GameRepository
         return self::SYSTEM_USER;
     }
 
-    public function setGcalId(int $id, string $gcalId): void
+    public function setGcalId(int $id, ?string $gcalId): void
     {
+        if ($gcalId === null) {
+            return;
+        }
+
         global $wpdb;
 
         $wpdb->update(

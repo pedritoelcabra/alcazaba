@@ -44,6 +44,10 @@ CREATE TABLE IF NOT EXISTS $tablePartidas (
       max_players TINYINT(2) DEFAULT 0,
       PRIMARY KEY  (id)
     ) $charset_collate;
+EOF;
+        dbDelta($sql);
+
+        $sql = <<<EOF
 CREATE TABLE IF NOT EXISTS $tableJugadores (
       id mediumint(9) NOT NULL AUTO_INCREMENT,
       created_on datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,

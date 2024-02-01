@@ -23,6 +23,7 @@ class Game
     public static function fromPost(array $data): self
     {
         $name = $data['game-name'] ?? '';
+        $name = str_replace('\\', '', $name);
         $bggId = $data['game-id'] ?? '';
         $start = $data['game-datetime'] ?? null;
         $players = (int) ($data['game-players'] ?? 0);

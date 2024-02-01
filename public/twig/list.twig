@@ -78,6 +78,8 @@
                                 <span style="vertical-align: middle" class="material-symbols-outlined">edit</span>
                             </a>
                         </div>
+                    {% endif %}
+                    {% if current_user_id == game.createdBy or is_admin %}
                         <div class='col-xs-12 col-md-3'>
                             <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=delete&id={{ game.id }}" onclick="return confirm('Borramos?')">
                                 <span style="vertical-align: middle" class="material-symbols-outlined">delete</span>
