@@ -11,13 +11,10 @@ class GoogleSync
     public static function createInCalendar(Game $game): ?string
     {
         $sync = new self();
-        $client = $sync->getClient();
-        $token = get_option(self::TOKEN);
-        if ($token === false) {
+        $client = $sync->getAuthorizedClient();
+        if ($client === null) {
             return null;
         }
-
-        $client->setAccessToken($token);
 
         $service = new Google_Service_Calendar($client);
 
@@ -43,13 +40,10 @@ class GoogleSync
     public static function updateInCalendar(Game $game): void
     {
         $sync = new self();
-        $client = $sync->getClient();
-        $token = get_option(self::TOKEN);
-        if ($token === false || $game->gcalId === null) {
+        $client = $sync->getAuthorizedClient();
+        if ($client === null || $game->gcalId === null) {
             return;
         }
-
-        $client->setAccessToken($token);
 
         $service = new Google_Service_Calendar($client);
 
@@ -71,13 +65,11 @@ class GoogleSync
     public static function deleteFromCalendar(string $id): void
     {
         $sync = new self();
-        $client = $sync->getClient();
-        $token = get_option(self::TOKEN);
-        if ($token === false) {
+        $client = $sync->getAuthorizedClient();
+        if ($client === null) {
             return;
         }
 
-        $client->setAccessToken($token);
 
         $service = new Google_Service_Calendar($client);
 
@@ -104,15 +96,29 @@ class GoogleSync
         return $http . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . '?page=wp-alcazaba/admin.php';
     }
 
-    private function getCalendars(): array
+    private function getAuthorizedClient(): ?Client
     {
         $client = $this->getClient();
         $token = get_option(self::TOKEN);
         if ($token === false) {
-            return [];
+            return null;
         }
 
         $client->setAccessToken($token);
+        if ($client->isAccessTokenExpired()) {
+            $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+            update_option(self::TOKEN, $client->getAccessToken());
+        }
+
+        return $client;
+    }
+
+    private function getCalendars(): array
+    {
+        $client = $this->getAuthorizedClient();
+        if ($client === null) {
+            return [];
+        }
 
         $service = new Google_Service_Calendar($client);
         $calendars = $service->calendarList->listCalendarList();
