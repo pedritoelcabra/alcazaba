@@ -39,6 +39,9 @@ class Game
         if ($startDt === false) {
             throw new Exception('Debe incluir una fecha válida.');
         }
+        if ($startDt < new DateTime()) {
+            throw new Exception('La fecha de comienzo debe estar en el futuro.');
+        }
 
         if (strlen($name) < 3) {
             throw new Exception('El nombre debe tener mínimo 3 caracteres.');
@@ -73,6 +76,9 @@ class Game
         $startDt = DateTime::createFromFormat('Y-m-d H:i', $start, new DateTimeZone('Europe/Madrid'));
         if ($startDt === false) {
             throw new Exception('Debe incluir una fecha válida.');
+        }
+        if ($startDt < new DateTime()) {
+            throw new Exception('La fecha y hora deben estar en el futuro.');
         }
 
         if (strlen($name) < 3) {
