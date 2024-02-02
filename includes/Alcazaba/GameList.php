@@ -333,7 +333,7 @@ class GameList
         return self::fetchTemplate(
             'list',
             [
-                'games' => (new GameRepository())->getAllGames(),
+                'games' => (new GameRepository())->getAllFutureGames(),
                 'users' => get_users(),
                 'error' => ($_GET['message'] ?? '') === 'unauthorized' ? 'No permitido.' : '',
                 'current_user_id' => wp_get_current_user()->ID,

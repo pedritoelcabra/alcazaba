@@ -19,11 +19,11 @@ class GameRepository
      *
      * @return Game[]
      */
-    public function getAllGames(): array
+    public function getAllFutureGames(): array
     {
         global $wpdb;
 
-        $results = $wpdb->get_results("SELECT * FROM {$this->tableName()} WHERE 1");
+        $results = $wpdb->get_results("SELECT * FROM {$this->tableName()} WHERE 1 AND start_time >= NOW()");
 
         $games = [];
         $playerRepo = new GamePlayerRepository();
