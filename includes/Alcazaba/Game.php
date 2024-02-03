@@ -17,6 +17,7 @@ class Game
         public readonly bool $joinable,
         public readonly int $maxPlayers,
         public readonly array $players = [],
+        public readonly ?string $description = null,
     ) {
     }
 
@@ -24,12 +25,13 @@ class Game
     {
         $name = $data['game-name'] ?? '';
         $name = str_replace('\\', '', $name);
+        $description = $data['game-description'] ?? null;
         $bggId = $data['game-id'] ?? '';
         $start = $data['game-datetime'] ?? null;
-        $players = (int) ($data['game-players'] ?? 0);
+        $maxPlayers = (int) ($data['game-players'] ?? 0);
         $open = isset($data['game-open']) ? true : false;
 
-        if ($open && $players < 1) {
+        if ($open && $maxPlayers < 1) {
             throw new Exception('El número de jugadores es obligatorio para partidas abiertas.');
         }
 
@@ -57,19 +59,23 @@ class Game
             $bggId,
             null,
             $open,
-            $players
+            $maxPlayers,
+            [],
+            $description,
         );
     }
 
     public function updateFromPost(array $data): self
     {
         $name = $data['game-name'] ?? '';
+        $name = str_replace('\\', '', $name);
+        $description = $data['game-description'] ?? null;
         $bggId = $data['game-id'] ?? '';
         $start = $data['game-datetime'] ?? null;
-        $players = (int) ($data['game-players'] ?? 0);
+        $maxPlayers = (int) ($data['game-players'] ?? 0);
         $open = isset($data['game-open']) ? true : false;
 
-        if ($open && $players < 1) {
+        if ($open && $maxPlayers < 1) {
             throw new Exception('El número de jugadores es obligatorio para partidas abiertas.');
         }
 
@@ -95,7 +101,9 @@ class Game
             $bggId,
             $this->gcalId,
             $open,
-            $players
+            $maxPlayers,
+            [],
+            $description,
         );
     }
 
@@ -138,11 +146,16 @@ class Game
 
     public function simpleHtmlDescription(): string
     {
+        $description = $this->description;
+        $description .= '<br />';
+
         if (! $this->joinable) {
-            return 'Partida cerrada';
+            $description .= 'Partida cerrada';
+
+            return $description;
         }
 
-        $description = "Creada por " . $this->createdByName;
+        $description .= "Creada por " . $this->createdByName;
         $description .= '<br />';
         $description .= 'Participantes (' . $this->currentPlayers() . '/' . $this->maxPlayers . '):';
         $description .= '<br />';

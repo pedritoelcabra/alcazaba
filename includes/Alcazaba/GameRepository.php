@@ -40,6 +40,7 @@ class GameRepository
                 $result->joinable,
                 $result->max_players,
                 $playerRepo->forGame($result->id),
+                $result->description,
             );
         }
 
@@ -109,7 +110,8 @@ class GameRepository
             $result->gcal_id,
             $result->joinable,
             $result->max_players,
-            $playerRepo->forGame($result->id)
+            $playerRepo->forGame($result->id),
+            $result->description
         );
     }
 
@@ -137,6 +139,7 @@ class GameRepository
                 'name' => $game->name,
                 'joinable' => $game->joinable,
                 'max_players' => $game->maxPlayers,
+                'description' => $game->description,
             )
         );
 
@@ -159,6 +162,7 @@ class GameRepository
                 'name' => $game->name,
                 'joinable' => $game->joinable,
                 'max_players' => $game->maxPlayers,
+                'description' => $game->description,
             ),
             ['id' => $game->id]
         );

@@ -47,6 +47,13 @@
                 </div>
             </div>
             <div class="panel-body">
+                {% if game.description is not empty %}
+                <div class="row">
+                    <div class='col-xs-12'>
+                        {{ game.description }}
+                    </div>
+                </div>
+                {% endif %}
                 {% if game.joinable == false %}
                 <div class="row">
                     <div class='col-xs-12'>

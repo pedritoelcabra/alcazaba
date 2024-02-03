@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS $tablePartidas (
       gcal_id varchar(255) DEFAULT NULL,
       start_time datetime NOT NULL,
       name varchar(55) NOT NULL,
+      description text DEFAULT NULL NULL,
       joinable TINYINT(1) DEFAULT FALSE,
       max_players TINYINT(2) DEFAULT 0,
       PRIMARY KEY  (id)
