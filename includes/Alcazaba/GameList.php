@@ -101,10 +101,6 @@ class GameList
             self::unauthorized();
         }
 
-        if ($game->createdBy === $playerId) {
-            self::unauthorized();
-        }
-
         $playerRepo = new GamePlayerRepository();
         $playerRepo->leaveGame($gameId, $playerId);
 
