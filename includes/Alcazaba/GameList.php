@@ -237,8 +237,10 @@ class GameList
 
         $game = $repo->get($id);
 
+        $description = str_replace('<br/>', PHP_EOL, $game->description ?? '');
+
         $data['game-name'] = $game->name;
-        $data['game-description'] = $game->description ?? '';
+        $data['game-description'] = $description;
         $data['game-id'] = $game->bggId;
         $data['game-datetime'] = $game->startTime->format('Y-m-d H:i');
         $data['game-players'] = $game->maxPlayers;

@@ -81,21 +81,21 @@
                 <div class="row">
                     {% if current_user_id == game.createdBy %}
                         <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=edit&id={{ game.id }}">
+                            <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=edit&id={{ game.id }}">
                                 <span style="vertical-align: middle" class="material-symbols-outlined">edit</span>
                             </a>
                         </div>
                     {% endif %}
                     {% if current_user_id == game.createdBy or is_admin %}
                         <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=delete&id={{ game.id }}" onclick="return confirm('Borramos?')">
+                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=delete&id={{ game.id }}" onclick="return deleteGamePrompt()">
                                 <span style="vertical-align: middle" class="material-symbols-outlined">delete</span>
                             </a>
                         </div>
                     {% endif %}
                     {% if game.hasFreeSlots() and game.playerInGame(current_user_id) %}
                         <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=plus&id={{ game.id }}">
+                            <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=plus&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">person_add</span>
                             </a>
@@ -103,7 +103,7 @@
                     {% endif %}
                     {% if game.hasFreeSlots() and not game.playerInGame(current_user_id) %}
                         <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=join&id={{ game.id }}">
+                            <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=join&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">play_circle</span>
                             </a>
@@ -111,7 +111,7 @@
                     {% endif %}
                     {% if game.playerInGame(current_user_id) %}
                         <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=leave&id={{ game.id }}">
+                            <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=leave&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">logout</span>
                             </a>
@@ -119,7 +119,7 @@
                     {% endif %}
                     {% if game.playerHasOthers(current_user_id) %}
                         <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=minus&id={{ game.id }}">
+                            <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=minus&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">person_cancel</span>
                             </a>
@@ -132,3 +132,20 @@
         </div>
     {% endfor %}
 </div>
+<script>
+    jQuery(function () {
+        jQuery('.action-button').on('click', function () {
+            jQuery('.btn-game-list').attr('style','pointer-events:none; filter: brightness(85%);');
+        });
+    });
+
+    function deleteGamePrompt() {
+        let input = confirm('Borramos?');
+
+        if (input !== false) {
+            jQuery('.btn-game-list').attr('style','pointer-events:none; filter: brightness(85%);');
+        }
+
+        return input;
+    }
+</script>
