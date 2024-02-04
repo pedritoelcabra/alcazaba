@@ -21,13 +21,46 @@ class Game
     ) {
     }
 
-    public static function fromPost(array $data): self
+    private static function nameFromPost(array $data): string
     {
         $name = $data['game-name'] ?? '';
         $name = str_replace('\\', '', $name);
+
+        if (strlen($name) < 3) {
+            throw new Exception('El nombre debe tener mínimo 3 caracteres.');
+        }
+
+        return $name;
+    }
+
+    private static function descriptionFromPost(array $data): string
+    {
         $description = $data['game-description'] ?? null;
-        $bggId = $data['game-id'] ?? '';
+        $description = strip_tags($description);
+        $description = str_replace(PHP_EOL . PHP_EOL, PHP_EOL, $description);
+        $description = str_replace(PHP_EOL, '<br/>', $description);
+
+        return $description;
+    }
+
+    private static function startFromPost(array $data): DateTime
+    {
         $start = $data['game-datetime'] ?? null;
+
+        $startDt = DateTime::createFromFormat('Y-m-d H:i', $start, new DateTimeZone('Europe/Madrid'));
+        if ($startDt === false) {
+            throw new Exception('Debe incluir una fecha válida.');
+        }
+
+        if ($startDt < new DateTime()) {
+            throw new Exception('La fecha de comienzo debe estar en el futuro.');
+        }
+
+        return $startDt;
+    }
+
+    public static function fromPost(array $data): self
+    {
         $maxPlayers = (int) ($data['game-players'] ?? 0);
         $open = isset($data['game-open']) ? true : false;
 
@@ -37,41 +70,24 @@ class Game
 
         $currentUser = wp_get_current_user();
 
-        $startDt = DateTime::createFromFormat('Y-m-d H:i', $start, new DateTimeZone('Europe/Madrid'));
-        if ($startDt === false) {
-            throw new Exception('Debe incluir una fecha válida.');
-        }
-        if ($startDt < new DateTime()) {
-            throw new Exception('La fecha de comienzo debe estar en el futuro.');
-        }
-
-        if (strlen($name) < 3) {
-            throw new Exception('El nombre debe tener mínimo 3 caracteres.');
-        }
-
         return new self(
             null,
             new DateTime(),
             $currentUser->ID,
             $currentUser->user_nicename,
-            $startDt,
-            $name,
-            $bggId,
+            self::startFromPost($data),
+            self::nameFromPost($data),
+            $data['game-id'] ?? '',
             null,
             $open,
             $maxPlayers,
             [],
-            $description,
+            self::descriptionFromPost($data),
         );
     }
 
     public function updateFromPost(array $data): self
     {
-        $name = $data['game-name'] ?? '';
-        $name = str_replace('\\', '', $name);
-        $description = $data['game-description'] ?? null;
-        $bggId = $data['game-id'] ?? '';
-        $start = $data['game-datetime'] ?? null;
         $maxPlayers = (int) ($data['game-players'] ?? 0);
         $open = isset($data['game-open']) ? true : false;
 
@@ -79,31 +95,19 @@ class Game
             throw new Exception('El número de jugadores es obligatorio para partidas abiertas.');
         }
 
-        $startDt = DateTime::createFromFormat('Y-m-d H:i', $start, new DateTimeZone('Europe/Madrid'));
-        if ($startDt === false) {
-            throw new Exception('Debe incluir una fecha válida.');
-        }
-        if ($startDt < new DateTime()) {
-            throw new Exception('La fecha y hora deben estar en el futuro.');
-        }
-
-        if (strlen($name) < 3) {
-            throw new Exception('El nombre debe tener mínimo 3 caracteres.');
-        }
-
         return new self(
             $this->id,
             $this->createdOn,
             $this->createdBy,
             $this->createdByName,
-            $startDt,
-            $name,
-            $bggId,
+            self::startFromPost($data),
+            self::nameFromPost($data),
+            $data['game-id'] ?? '',
             $this->gcalId,
             $open,
             $maxPlayers,
             [],
-            $description,
+            self::descriptionFromPost($data),
         );
     }
 
