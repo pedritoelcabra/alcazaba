@@ -112,6 +112,19 @@ class GameRepository
         );
     }
 
+    public function setPendingBggSync(int $id, bool $val): void
+    {
+        global $wpdb;
+
+        $wpdb->update(
+            $this->tableName(),
+            [
+                'pending_bgg_sync' => $val,
+            ],
+            ['id' => $id]
+        );
+    }
+
     /**
      * @param stdClass[] $users
      */

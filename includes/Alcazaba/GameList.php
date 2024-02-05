@@ -1,6 +1,5 @@
 <?php
 
-use includes\Alcazaba\GamePlayerRepository;
 use Timber\Timber;
 
 class GameList
@@ -19,9 +18,7 @@ class GameList
             return;
         }
 
-        $repo = new GameRepository();
-
-        $game = $repo->get($gameId);
+        $game = self::gameRepo()->get($gameId);
 
         if ($game === null || $game->createdBy !== wp_get_current_user()->ID) {
             self::unauthorized();
@@ -47,13 +44,11 @@ class GameList
         $id = (int)$_REQUEST['id'];
         self::checkOwnerPermissions($id);
 
-        $repo = new GameRepository();
-
-        $game = $repo->get($id);
+        $game = self::gameRepo()->get($id);
         if ($game !== null && $game->gcalId !== null) {
             GoogleSync::deleteFromCalendar($game->gcalId);
         }
-        $repo->delete($id);
+        self::gameRepo()->delete($id);
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -65,8 +60,7 @@ class GameList
         $gameId = (int)$_REQUEST['id'];
         $playerId = wp_get_current_user()->ID;
 
-        $repo = new GameRepository();
-        $game = $repo->get($gameId);
+        $game = self::gameRepo()->get($gameId);
 
         if ($game->playerInGame($playerId)) {
             self::unauthorized();
@@ -76,10 +70,8 @@ class GameList
             self::unauthorized();
         }
 
-        $playerRepo = new GamePlayerRepository();
-        $playerRepo->joinGame($gameId, $playerId);
-
-        $repo->setPendingGcalSync($gameId, true);
+        self::playerRepo()->joinGame($gameId, $playerId);
+        self::queueGameForSync($game);
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -91,17 +83,14 @@ class GameList
         $gameId = (int)$_REQUEST['id'];
         $playerId = wp_get_current_user()->ID;
 
-        $repo = new GameRepository();
-        $game = $repo->get($gameId);
+        $game = self::gameRepo()->get($gameId);
 
         if (!$game->playerInGame($playerId)) {
             self::unauthorized();
         }
 
-        $playerRepo = new GamePlayerRepository();
-        $playerRepo->leaveGame($gameId, $playerId);
-
-        $repo->setPendingGcalSync($gameId, true);
+        self::playerRepo()->leaveGame($gameId, $playerId);
+        self::queueGameForSync($game);
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -113,8 +102,7 @@ class GameList
         $gameId = (int)$_REQUEST['id'];
         $playerId = wp_get_current_user()->ID;
 
-        $repo = new GameRepository();
-        $game = $repo->get($gameId);
+        $game = self::gameRepo()->get($gameId);
 
         if (!$game->playerInGame(wp_get_current_user()->ID)) {
             self::unauthorized();
@@ -124,10 +112,8 @@ class GameList
             self::unauthorized();
         }
 
-        $playerRepo = new GamePlayerRepository();
-        $playerRepo->increaseAmount($gameId, $playerId);
-
-        $repo->setPendingGcalSync($gameId, true);
+        self::playerRepo()->increaseAmount($gameId, $playerId);
+        self::queueGameForSync($game);
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -139,17 +125,14 @@ class GameList
         $gameId = (int)$_REQUEST['id'];
         $playerId = wp_get_current_user()->ID;
 
-        $repo = new GameRepository();
-        $game = $repo->get($gameId);
+        $game = self::gameRepo()->get($gameId);
 
         if (!$game->playerHasOthers(wp_get_current_user()->ID)) {
             self::unauthorized();
         }
 
-        $playerRepo = new GamePlayerRepository();
-        $playerRepo->decreaseAmount($gameId, $playerId);
-
-        $repo->setPendingGcalSync($gameId, true);
+        self::playerRepo()->decreaseAmount($gameId, $playerId);
+        self::queueGameForSync($game);
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -160,18 +143,15 @@ class GameList
         self::redirectIfNotLoggedIn();
 
         $data = ['error' => ''];
-        $gameRepo = new GameRepository();
-        $playerRepo = new GamePlayerRepository();
-
         try {
             $game = Game::fromPost($_POST);
 
-            $gameId = $gameRepo->create($game);
-            $playerRepo->joinGame($gameId, wp_get_current_user()->ID);
+            $gameId = self::gameRepo()->create($game);
+            self::playerRepo()->joinGame($gameId, wp_get_current_user()->ID);
 
-            $game = $gameRepo->get($gameId);
+            $game = self::gameRepo()->get($gameId);
             if ($game !== null) {
-                $gameRepo->setPendingGcalSync($gameId, true);
+                self::queueGameForSync($game);
             }
 
             wp_redirect('/lista-de-partidas');
@@ -191,14 +171,12 @@ class GameList
         self::checkOwnerPermissions($gameId);
 
         $data = ['error' => ''];
-        $repo = new GameRepository();
-
         try {
-            $game = $repo->get($gameId);
+            $game = self::gameRepo()->get($gameId);
             $updatedGame = $game->updateFromPost($_POST);
-            $repo->update($updatedGame);
+            self::gameRepo()->update($updatedGame);
 
-            $repo->setPendingGcalSync($gameId, true);
+            self::queueGameForSync($game);
 
             wp_redirect('/lista-de-partidas');
             exit;
@@ -217,9 +195,8 @@ class GameList
         self::checkOwnerPermissions($id);
 
         $data = ['error' => ''];
-        $repo = new GameRepository();
 
-        $game = $repo->get($id);
+        $game = self::gameRepo()->get($id);
 
         $description = str_replace('<br/>', PHP_EOL, $game->description ?? '');
 
@@ -271,6 +248,22 @@ class GameList
         exit;
     }
 
+    private static function queueGameForSync(Game $game): void
+    {
+        self::gameRepo()->setPendingGcalSync($game->id, true);
+        self::gameRepo()->setPendingBggSync($game->id, true);
+    }
+
+    private static function gameRepo(): GameRepository
+    {
+        return new GameRepository();
+    }
+
+    private static function playerRepo(): GamePlayerRepository
+    {
+        return new GamePlayerRepository();
+    }
+
     public static function listGames(): string
     {
         self::redirectIfNotLoggedIn();
@@ -320,7 +313,7 @@ class GameList
         return self::fetchTemplate(
             'list',
             [
-                'games' => (new GameRepository())->getAllFutureGames(),
+                'games' => self::gameRepo()->getAllFutureGames(),
                 'users' => get_users(),
                 'error' => ($_GET['message'] ?? '') === 'unauthorized' ? 'No permitido.' : '',
                 'current_user_id' => wp_get_current_user()->ID,

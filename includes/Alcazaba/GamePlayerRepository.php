@@ -1,12 +1,5 @@
 <?php
 
-namespace includes\Alcazaba;
-
-use DateTime;
-use Game;
-use GamePlayer;
-use Timber\Timber;
-
 class GamePlayerRepository
 {
     private const SYSTEM_USER = 'Sistema';
