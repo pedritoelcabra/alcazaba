@@ -21,9 +21,19 @@ class GameRepository
      */
     public function getAllFutureGames(): array
     {
+        return $this->getGamesWhere('1 AND start_time >= NOW()');
+    }
+
+    /**
+     * @param stdClass[] $users
+     *
+     * @return Game[]
+     */
+    private function getGamesWhere(string $where): array
+    {
         global $wpdb;
 
-        $results = $wpdb->get_results("SELECT * FROM {$this->tableName()} WHERE 1 AND start_time >= NOW()");
+        $results = $wpdb->get_results("SELECT * FROM {$this->tableName()} WHERE $where");
 
         $games = [];
         $playerRepo = new GamePlayerRepository();

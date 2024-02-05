@@ -42,6 +42,9 @@ CREATE TABLE IF NOT EXISTS $tablePartidas (
       name varchar(55) NOT NULL,
       description text DEFAULT NULL NULL,
       joinable TINYINT(1) DEFAULT FALSE,
+      pending_gcal_sync TINYINT(1) DEFAULT FALSE,
+      pending_bgg_sync TINYINT(1) DEFAULT FALSE,
+      pending_telegram_sync TINYINT(1) DEFAULT FALSE,
       max_players TINYINT(2) DEFAULT 0,
       PRIMARY KEY  (id)
     ) $charset_collate;
