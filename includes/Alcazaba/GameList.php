@@ -251,6 +251,11 @@ class GameList
         return self::fetchTemplate('create', ['sent' => $data, 'id' => $game->id]);
     }
 
+    public static function cron(): void
+    {
+        Logger::info('Executing cron ' . time());
+    }
+
     public static function ajaxListGames(): void
     {
         $query = $_POST['query'];
@@ -290,6 +295,10 @@ class GameList
     public static function listGames(): string
     {
         self::redirectIfNotLoggedIn();
+
+        if (!wp_next_scheduled('al_cron_hook')) {
+            wp_schedule_event(time(), 'minutely', 'al_cron_hook');
+        }
 
         $action = $_REQUEST['action'] ?? '';
 
