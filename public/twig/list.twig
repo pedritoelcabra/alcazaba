@@ -109,19 +109,19 @@
                             </a>
                         </div>
                     {% endif %}
-                    {% if game.playerInGame(current_user_id) %}
-                        <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=leave&id={{ game.id }}">
-                                    <span style="vertical-align: middle"
-                                          class="material-symbols-outlined">logout</span>
-                            </a>
-                        </div>
-                    {% endif %}
                     {% if game.playerHasOthers(current_user_id) %}
                         <div class='col-xs-12 col-md-3'>
                             <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=minus&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">person_cancel</span>
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if game.playerInGame(current_user_id) and game.joinable %}
+                        <div class='col-xs-12 col-md-3'>
+                            <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=leave&id={{ game.id }}">
+                                    <span style="vertical-align: middle"
+                                          class="material-symbols-outlined">logout</span>
                             </a>
                         </div>
                     {% endif %}

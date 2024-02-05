@@ -136,7 +136,7 @@ class Plugin_Name_Public
         add_action('wp_ajax_search_game', ['GameList', 'ajaxListGames']);
         add_action('wp_ajax_nopriv_search_game', ['GameList', 'ajaxListGames']);
 
-        add_action('al_cron_hook', ['GameList', 'cron']);
+        add_action('al_cron_hook', ['GameCron', 'cron']);
 
         add_filter( 'cron_schedules', 'alAddMinuteSchedule' );
     }

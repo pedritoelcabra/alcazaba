@@ -15,8 +15,6 @@ class GameRepository
     }
 
     /**
-     * @param stdClass[] $users
-     *
      * @return Game[]
      */
     public function getAllFutureGames(): array
@@ -25,8 +23,14 @@ class GameRepository
     }
 
     /**
-     * @param stdClass[] $users
-     *
+     * @return Game[]
+     */
+    public function getAllGamesPendingGcalSync(): array
+    {
+        return $this->getGamesWhere('1 AND start_time >= NOW() AND pending_gcal_sync = 1');
+    }
+
+    /**
      * @return Game[]
      */
     private function getGamesWhere(string $where): array
@@ -70,7 +74,7 @@ class GameRepository
         $users = get_users();
 
         foreach ($users as $user) {
-            if ((int) $user->data->ID === $id) {
+            if ((int)$user->data->ID === $id) {
                 return $user->user_nicename;
             }
         }
@@ -88,9 +92,22 @@ class GameRepository
 
         $wpdb->update(
             $this->tableName(),
-            array(
+            [
                 'gcal_id' => $gcalId,
-            ),
+            ],
+            ['id' => $id]
+        );
+    }
+
+    public function setPendingGcalSync(int $id, bool $val): void
+    {
+        global $wpdb;
+
+        $wpdb->update(
+            $this->tableName(),
+            [
+                'pending_gcal_sync' => $val,
+            ],
             ['id' => $id]
         );
     }
@@ -113,7 +130,7 @@ class GameRepository
             $result->id,
             DateTime::createFromFormat('Y-m-d H:i:s', $result->created_on, new DateTimeZone('Europe/Madrid')),
             $result->created_by,
-            $userNames[(int) $result->created_by] ?? self::SYSTEM_USER,
+            $userNames[(int)$result->created_by] ?? self::SYSTEM_USER,
             DateTime::createFromFormat('Y-m-d H:i:s', $result->start_time, new DateTimeZone('Europe/Madrid')),
             $result->name,
             $result->bgg_id,
@@ -141,7 +158,7 @@ class GameRepository
 
         $res = $wpdb->insert(
             $this->tableName(),
-            array(
+            [
                 'created_on' => $game->createdOn->format(DateTime::ATOM),
                 'created_by' => $game->createdBy,
                 'bgg_id' => $game->bggId,
@@ -150,7 +167,7 @@ class GameRepository
                 'joinable' => $game->joinable,
                 'max_players' => $game->maxPlayers,
                 'description' => $game->description,
-            )
+            ]
         );
 
         if ($res === false) {
@@ -166,14 +183,14 @@ class GameRepository
 
         $res = $wpdb->update(
             $this->tableName(),
-            array(
+            [
                 'bgg_id' => $game->bggId,
                 'start_time' => $game->startTime->format(DateTime::ATOM),
                 'name' => $game->name,
                 'joinable' => $game->joinable,
                 'max_players' => $game->maxPlayers,
                 'description' => $game->description,
-            ),
+            ],
             ['id' => $game->id]
         );
 

@@ -69,6 +69,7 @@ register_deactivation_hook(__FILE__, 'deactivate_plugin_name');
 require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 require plugin_dir_path(__FILE__) . 'includes/class-wp-alcazaba.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GameList.php';
+require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GameCron.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/Game.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GoogleSync.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GamePlayer.php';

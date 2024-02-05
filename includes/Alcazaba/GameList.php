@@ -79,10 +79,7 @@ class GameList
         $playerRepo = new GamePlayerRepository();
         $playerRepo->joinGame($gameId, $playerId);
 
-        if ($game->gcalId !== null) {
-            $game = $repo->get($gameId);
-            GoogleSync::updateInCalendar($game);
-        }
+        $repo->setPendingGcalSync($gameId, true);
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -104,10 +101,7 @@ class GameList
         $playerRepo = new GamePlayerRepository();
         $playerRepo->leaveGame($gameId, $playerId);
 
-        if ($game->gcalId !== null) {
-            $game = $repo->get($gameId);
-            GoogleSync::updateInCalendar($game);
-        }
+        $repo->setPendingGcalSync($gameId, true);
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -133,10 +127,7 @@ class GameList
         $playerRepo = new GamePlayerRepository();
         $playerRepo->increaseAmount($gameId, $playerId);
 
-        if ($game->gcalId !== null) {
-            $game = $repo->get($gameId);
-            GoogleSync::updateInCalendar($game);
-        }
+        $repo->setPendingGcalSync($gameId, true);
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -158,10 +149,7 @@ class GameList
         $playerRepo = new GamePlayerRepository();
         $playerRepo->decreaseAmount($gameId, $playerId);
 
-        if ($game->gcalId !== null) {
-            $game = $repo->get($gameId);
-            GoogleSync::updateInCalendar($game);
-        }
+        $repo->setPendingGcalSync($gameId, true);
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -183,8 +171,7 @@ class GameList
 
             $game = $gameRepo->get($gameId);
             if ($game !== null) {
-                $gcalId = GoogleSync::createInCalendar($game);
-                $gameRepo->setGcalId($gameId, $gcalId);
+                $gameRepo->setPendingGcalSync($gameId, true);
             }
 
             wp_redirect('/lista-de-partidas');
@@ -200,21 +187,18 @@ class GameList
     public static function update(): string
     {
         self::redirectIfNotLoggedIn();
-        $id = (int)$_REQUEST['id'];
-        self::checkOwnerPermissions($id);
+        $gameId = (int)$_REQUEST['id'];
+        self::checkOwnerPermissions($gameId);
 
         $data = ['error' => ''];
         $repo = new GameRepository();
 
         try {
-            $game = $repo->get($id);
+            $game = $repo->get($gameId);
             $updatedGame = $game->updateFromPost($_POST);
             $repo->update($updatedGame);
 
-            if ($game->gcalId !== null) {
-                $game = $repo->get($id);
-                GoogleSync::updateInCalendar($game);
-            }
+            $repo->setPendingGcalSync($gameId, true);
 
             wp_redirect('/lista-de-partidas');
             exit;
@@ -249,11 +233,6 @@ class GameList
         }
 
         return self::fetchTemplate('create', ['sent' => $data, 'id' => $game->id]);
-    }
-
-    public static function cron(): void
-    {
-        Logger::info('Executing cron ' . time());
     }
 
     public static function ajaxListGames(): void
