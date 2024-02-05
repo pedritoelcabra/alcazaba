@@ -66,6 +66,7 @@ register_deactivation_hook(__FILE__, 'deactivate_plugin_name');
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
+require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 require plugin_dir_path(__FILE__) . 'includes/class-wp-alcazaba.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GameList.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/Game.php';
@@ -73,7 +74,7 @@ require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GoogleSync.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GamePlayer.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GameRepository.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GamePlayerRepository.php';
-require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
+require plugin_dir_path(__FILE__) . 'includes/Alcazaba/Logger.php';
 
 /**
  * Begins execution of the plugin.
