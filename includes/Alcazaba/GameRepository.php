@@ -62,6 +62,7 @@ class GameRepository
                 $result->max_players,
                 $playerRepo->forGame($result->id),
                 $result->description,
+                $result->bgg_weight
             );
         }
 
@@ -171,7 +172,8 @@ class GameRepository
             $result->joinable,
             $result->max_players,
             $playerRepo->forGame($result->id),
-            $result->description
+            $result->description,
+            $result->bgg_weight,
         );
     }
 

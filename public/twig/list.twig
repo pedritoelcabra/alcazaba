@@ -37,9 +37,17 @@
                     <div class='col-xs-12 col-md-3'>
                         {{ game.startTime|date("H:i") }}
                     </div>
-                    <div class='col-xs-12 col-md-6'>
-                        {{ game.name }}{% if game.bggId > 0 %} -
-                        <a target="_blank" href="https://boardgamegeek.com/boardgame/{{ game.bggId }}">ver en BGG</a>{% endif %}
+                    <div class='col-xs-12 col-md-3'>
+                        {{ game.name }}
+                    </div>
+                    <div class='col-xs-12 col-md-3'>
+                        {% if game.bggId > 0 %}
+                            {% if game.weight is not null %}
+                                Peso de <strong>{{ game.weight}} </strong><a target="_blank" href="https://boardgamegeek.com/boardgame/{{ game.bggId }}">en BGG</a>
+                            {% else %}
+                                <a target="_blank" href="https://boardgamegeek.com/boardgame/{{ game.bggId }}">Ver en BGG</a>
+                            {% endif %}
+                        {% endif %}
                     </div>
                     <div class='col-xs-12 col-md-3 text-right'>
                         Creado por {{ game.createdByName }}
@@ -47,84 +55,93 @@
                 </div>
             </div>
             <div class="panel-body">
-                {% if game.description is not empty %}
                 <div class="row">
-                    <div class='col-xs-12'>
-                        {{ game.description }}
+                    <div class="col-xs-12 col-md-3">
+                        {% if game.hasThumbnail() %}
+                            <img src="{{ game.publicThumbnailPath() }}" alt="Imágen no disponible">
+                        {% endif %}
                     </div>
-                </div>
-                {% endif %}
-                {% if game.joinable == false %}
-                <div class="row">
-                    <div class='col-xs-12'>
-                        Partida cerrada
-                    </div>
-                </div>
-                {% else %}
-                    <div class="row">
-                        <div class='col-xs-12'>
-                            <strong>Jugadores ({{ game.currentPlayers() }} / {{ game.maxPlayers }})</strong>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class='col-xs-12'>
-                            <ul>
-                                {% for player in game.players %}
-                                    <li>
-                                        {{ player.name }}{% if player.amount > 1 %} x{{ player.amount }}{% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                {% endif %}
-                <div class="row">
-                    {% if current_user_id == game.createdBy %}
-                        <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=edit&id={{ game.id }}">
-                                <span style="vertical-align: middle" class="material-symbols-outlined">edit</span>
-                            </a>
-                        </div>
-                    {% endif %}
-                    {% if current_user_id == game.createdBy or is_admin %}
-                        <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=delete&id={{ game.id }}" onclick="return deleteGamePrompt()">
-                                <span style="vertical-align: middle" class="material-symbols-outlined">delete</span>
-                            </a>
-                        </div>
-                    {% endif %}
-                    {% if game.hasFreeSlots() and game.playerInGame(current_user_id) %}
-                        <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=plus&id={{ game.id }}">
+                    <div class="col-xs-12 col-md-9">
+                        {% if game.description is not empty %}
+                            <div class="row">
+                                <div class='col-xs-12'>
+                                    {{ game.description }}
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if game.joinable == false %}
+                            <div class="row">
+                                <div class='col-xs-12'>
+                                    Partida cerrada
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="row">
+                                <div class='col-xs-12'>
+                                    <strong>Jugadores ({{ game.currentPlayers() }} / {{ game.maxPlayers }})</strong>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class='col-xs-12'>
+                                    <ul>
+                                        {% for player in game.players %}
+                                            <li>
+                                                {{ player.name }}{% if player.amount > 1 %} x{{ player.amount }}{% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="row">
+                            {% if current_user_id == game.createdBy %}
+                                <div class='col-xs-12 col-md-3'>
+                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=edit&id={{ game.id }}">
+                                        <span style="vertical-align: middle" class="material-symbols-outlined">edit</span>
+                                    </a>
+                                </div>
+                            {% endif %}
+                            {% if current_user_id == game.createdBy or is_admin %}
+                                <div class='col-xs-12 col-md-3'>
+                                    <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=delete&id={{ game.id }}" onclick="return deleteGamePrompt()">
+                                        <span style="vertical-align: middle" class="material-symbols-outlined">delete</span>
+                                    </a>
+                                </div>
+                            {% endif %}
+                            {% if game.hasFreeSlots() and game.playerInGame(current_user_id) %}
+                                <div class='col-xs-12 col-md-3'>
+                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=plus&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">person_add</span>
-                            </a>
-                        </div>
-                    {% endif %}
-                    {% if game.hasFreeSlots() and not game.playerInGame(current_user_id) %}
-                        <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=join&id={{ game.id }}">
+                                    </a>
+                                </div>
+                            {% endif %}
+                            {% if game.hasFreeSlots() and not game.playerInGame(current_user_id) %}
+                                <div class='col-xs-12 col-md-3'>
+                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=join&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">person_add</span>
-                            </a>
-                        </div>
-                    {% endif %}
-                    {% if game.playerHasOthers(current_user_id) %}
-                        <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=minus&id={{ game.id }}">
+                                    </a>
+                                </div>
+                            {% endif %}
+                            {% if game.playerHasOthers(current_user_id) %}
+                                <div class='col-xs-12 col-md-3'>
+                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=minus&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">person_cancel</span>
-                            </a>
-                        </div>
-                    {% endif %}
-                    {% if game.playerInGame(current_user_id) and game.joinable %}
-                        <div class='col-xs-12 col-md-3'>
-                            <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=leave&id={{ game.id }}">
+                                    </a>
+                                </div>
+                            {% endif %}
+                            {% if game.playerInGame(current_user_id) and game.joinable %}
+                                <div class='col-xs-12 col-md-3'>
+                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=leave&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">logout</span>
-                            </a>
+                                    </a>
+                                </div>
+                            {% endif %}
                         </div>
-                    {% endif %}
+                    </div>
                 </div>
             </div>
             <div class="panel-footer">

@@ -58,8 +58,6 @@ class GameCron
                 fwrite($fp, $content);
                 fclose($fp);
             }
-
-            break;
         }
     }
 }

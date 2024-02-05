@@ -18,6 +18,7 @@ class Game
         public readonly int $maxPlayers,
         public readonly array $players = [],
         public readonly ?string $description = null,
+        public readonly ?float $weight = null,
     ) {
     }
 
@@ -180,6 +181,18 @@ class Game
         return sprintf(
             '%s../../public/image/games/%s.jpg',
             plugin_dir_path(__FILE__),
+            $this->bggId
+        );
+    }
+
+    public function publicThumbnailPath(): ?string
+    {
+        if ($this->bggId === null) {
+            return null;
+        }
+
+        return sprintf(
+            '/wp-content/plugins/wp-alcazaba/public/image/games/%s.jpg',
             $this->bggId
         );
     }
