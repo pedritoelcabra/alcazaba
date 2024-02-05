@@ -170,4 +170,22 @@ class Game
 
         return $description;
     }
+
+    public function getThumbnailPath(): ?string
+    {
+        if ($this->bggId === null) {
+            return null;
+        }
+
+        return sprintf(
+            '%s../../public/image/games/%s.jpg',
+            plugin_dir_path(__FILE__),
+            $this->bggId
+        );
+    }
+
+    public function hasThumbnail(): bool
+    {
+        return $this->getThumbnailPath() !== null && file_exists($this->getThumbnailPath());
+    }
 }

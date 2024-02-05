@@ -91,9 +91,7 @@ class GoogleSync
 
     private static function url(): string
     {
-        $http = $_SERVER['HTTP_HOST'] === 'localhost' ? 'http://' : 'https://';
-
-        return $http . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . '?page=wp-alcazaba/admin.php';
+        return 'https://alcazabadejuegos.es/wp-admin/admin.php?page=wp-alcazaba/admin.php';
     }
 
     private function getAuthorizedClient(): ?Client

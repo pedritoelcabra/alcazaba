@@ -1,6 +1,5 @@
 <?php
 
-use includes\Alcazaba\GamePlayerRepository;
 use Timber\Timber;
 
 class GameRepository
@@ -28,6 +27,14 @@ class GameRepository
     public function getAllGamesPendingGcalSync(): array
     {
         return $this->getGamesWhere('1 AND start_time >= NOW() AND pending_gcal_sync = 1');
+    }
+
+    /**
+     * @return Game[]
+     */
+    public function getAllGamesPendingBggSync(): array
+    {
+        return $this->getGamesWhere('1 AND start_time >= NOW() AND pending_bgg_sync = 1 AND bgg_id IS NOT NULL');
     }
 
     /**
@@ -107,6 +114,19 @@ class GameRepository
             $this->tableName(),
             [
                 'pending_gcal_sync' => $val,
+            ],
+            ['id' => $id]
+        );
+    }
+
+    public function setGameWeight(int $id, float $weight): void
+    {
+        global $wpdb;
+
+        $wpdb->update(
+            $this->tableName(),
+            [
+                'bgg_weight' => round($weight, 2),
             ],
             ['id' => $id]
         );

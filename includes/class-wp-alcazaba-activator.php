@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS $tablePartidas (
       pending_bgg_sync TINYINT(1) DEFAULT FALSE,
       pending_telegram_sync TINYINT(1) DEFAULT FALSE,
       max_players TINYINT(2) DEFAULT 0,
+      bgg_weight decimal(3, 2) null,
       PRIMARY KEY  (id)
     ) $charset_collate;
 EOF;
