@@ -32,6 +32,14 @@ class GameRepository
     /**
      * @return Game[]
      */
+    public function getAllGamesPendingTelegramSync(): array
+    {
+        return $this->getGamesWhere('1 AND start_time >= NOW() AND pending_telegram_sync = 1');
+    }
+
+    /**
+     * @return Game[]
+     */
     public function getAllGamesPendingBggSync(): array
     {
         return $this->getGamesWhere('1 AND start_time >= NOW() AND pending_bgg_sync = 1 AND bgg_id IS NOT NULL');
@@ -115,6 +123,19 @@ class GameRepository
             $this->tableName(),
             [
                 'pending_gcal_sync' => $val,
+            ],
+            ['id' => $id]
+        );
+    }
+
+    public function setPendingTelegramSync(int $id, bool $val): void
+    {
+        global $wpdb;
+
+        $wpdb->update(
+            $this->tableName(),
+            [
+                'pending_telegram_sync' => $val,
             ],
             ['id' => $id]
         );

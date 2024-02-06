@@ -8,6 +8,7 @@ class GameCron
 
         self::googleSyncCron();
         self::bggSyncCron();
+        self::telegramSync();
     }
 
     private static function googleSyncCron(): void
@@ -23,6 +24,39 @@ class GameCron
             } else {
                 GoogleSync::updateInCalendar($game);
             }
+        }
+    }
+
+    private static function telegramSync(): void
+    {
+        $repo = new GameRepository();
+        foreach ($repo->getAllGamesPendingTelegramSync() as $game) {
+            $repo->setPendingTelegramSync($game->id, false);
+
+            Logger::info('Sending to telegram: ' . $game->id);
+
+            try {
+                $credentials = json_decode(file_get_contents(plugin_dir_path(__FILE__) . 'telegram.json'), 1);
+            } catch (Throwable $e) {
+                Logger::info($e->getMessage());
+
+                continue;
+            }
+
+            if (empty($credentials['bot']) || empty($credentials['channel'])) {
+                Logger::info('Invalid telegram credentials');
+
+                continue;
+            }
+
+            $url = sprintf(
+                'https://api.telegram.org/bot%s/sendMessage?parse_mode=HTML&chat_id=%s&text=%s',
+                $credentials['bot'],
+                $credentials['channel'],
+                urlencode(self::telegramMessage($game))
+            );
+
+            file_get_contents($url);
         }
     }
 
@@ -52,12 +86,43 @@ class GameCron
 
             $repo->setGameWeight($game->id, floatval($weight));
 
-            if ($thumbnail !== '' && ! $game->hasThumbnail()) {
+            if ($thumbnail !== '' && !$game->hasThumbnail()) {
                 $content = file_get_contents($thumbnail);
                 $fp = fopen($game->getThumbnailPath(), "w");
                 fwrite($fp, $content);
                 fclose($fp);
             }
         }
+    }
+
+    private static function telegramMessage(Game $game): string
+    {
+        $name = htmlentities($game->name);
+        $formatter = new IntlDateFormatter(
+            'es',
+            IntlDateFormatter::LONG,
+            IntlDateFormatter::SHORT,
+        );
+        $date = $formatter->format($game->startTime);
+        $bggLink = $game->bggId !== null ? sprintf(
+            PHP_EOL . '<a target="_blank" href="%s">Ver en BGG</a>',
+            $game->bggLink()
+        ) : '';
+        $createdBy = htmlentities($game->createdByName);
+        $description = htmlentities(substr((string)$game->description, 0, 1000));
+        if ($description !== '') {
+            $description = PHP_EOL . '<strong>Descripción</strong>' . PHP_EOL . $description;
+        }
+        $abierta = $game->joinable ? PHP_EOL . sprintf('Partida abierta para %s jugadores', $game->maxPlayers) : '';
+        $alcazabaLink = 'https://alcazabadejuegos.es/lista-de-partidas/';
+        $joinLink = $game->joinable ? PHP_EOL . sprintf('<a target="_blank" href="%s">Unirse a la partida</a>', $alcazabaLink) : '';
+
+        return <<<EOF
+<i>Nueva partida publicada en la web:</i>
+
+<strong>-- $name --</strong>
+<strong>$date</strong>$bggLink
+Creada por: {$createdBy}{$abierta}{$joinLink}{$description}
+EOF;
     }
 }

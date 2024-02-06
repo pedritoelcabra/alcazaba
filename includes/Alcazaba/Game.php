@@ -201,4 +201,13 @@ class Game
     {
         return $this->getThumbnailPath() !== null && file_exists($this->getThumbnailPath());
     }
+
+    public function bggLink(): ?string
+    {
+        if ($this->bggId === null) {
+            return null;
+        }
+
+        return sprintf('https://boardgamegeek.com/boardgame/%s', $this->bggId);
+    }
 }
