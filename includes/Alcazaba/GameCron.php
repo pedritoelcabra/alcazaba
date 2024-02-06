@@ -103,7 +103,8 @@ class GameCron
             IntlDateFormatter::LONG,
             IntlDateFormatter::SHORT,
         );
-        $date = $formatter->format($game->startTime);
+        $formatter->setPattern("eeee, dd 'de' MMMM 'a las' HH:mm");
+        $day = ucfirst($formatter->format($game->startTime));
         $bggLink = $game->bggId !== null ? sprintf(
             PHP_EOL . '<a target="_blank" href="%s">Ver en BGG</a>',
             $game->bggLink()
@@ -121,7 +122,7 @@ class GameCron
 <i>Nueva partida publicada en la web:</i>
 
 <strong>-- $name --</strong>
-<strong>$date</strong>$bggLink
+<strong>$day</strong>$bggLink
 Creada por: {$createdBy}{$abierta}{$joinLink}{$description}
 EOF;
     }
