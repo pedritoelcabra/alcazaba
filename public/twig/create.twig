@@ -72,6 +72,15 @@
                        value="{% if sent is defined %}{{ sent['game-players'] }}{% else %}4{% endif %}">
             </div>
         </div>
+        {% if id is not defined %}
+            <div class="row">
+                <div class='form-group col-sm-12'>
+                    <label for="game-publish" class="control-label">Publicar en el canal de Telegram</label>
+                    <div style="clear: both;"></div>
+                    <input id="game-publish" name="game-publish" type="checkbox" checked="checked">
+                </div>
+            </div>
+        {% endif %}
         <div class="row margin-bottom-lg">
             <div class='form-group col-sm-12'>
                 <input type="submit" value="{% if id is defined %}Modificar{% else %}Crear{% endif %} partida">

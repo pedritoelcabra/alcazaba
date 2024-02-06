@@ -152,8 +152,10 @@ class GameList
             $game = self::gameRepo()->get($gameId);
             if ($game !== null) {
                 self::queueGameForSync($game);
-                // Unlike other syncs, only send to telegram when newly created
-                self::gameRepo()->setPendingTelegramSync($game->id, true);
+
+                if (($_REQUEST['game-publish'] ?? false) !== false) {
+                    self::gameRepo()->setPendingTelegramSync($game->id, true);
+                }
             }
 
             wp_redirect('/lista-de-partidas');

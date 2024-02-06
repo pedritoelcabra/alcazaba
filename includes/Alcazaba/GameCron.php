@@ -97,7 +97,7 @@ class GameCron
 
     private static function telegramMessage(Game $game): string
     {
-        $name = htmlentities($game->name);
+        $name = $game->name;
         $formatter = new IntlDateFormatter(
             'es',
             IntlDateFormatter::LONG,
@@ -108,8 +108,8 @@ class GameCron
             PHP_EOL . '<a target="_blank" href="%s">Ver en BGG</a>',
             $game->bggLink()
         ) : '';
-        $createdBy = htmlentities($game->createdByName);
-        $description = htmlentities(substr((string)$game->description, 0, 1000));
+        $createdBy = $game->createdByName;
+        $description = substr((string)$game->description, 0, 1000);
         if ($description !== '') {
             $description = PHP_EOL . '<strong>Descripción</strong>' . PHP_EOL . $description;
         }
