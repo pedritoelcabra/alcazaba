@@ -172,6 +172,23 @@ class Game
         return $description;
     }
 
+    public function getHyperlinkedDescription(): string
+    {
+        $description = $this->description;
+
+        $links = [];
+        preg_match_all('~[a-z]+://\S+~', $this->description, $links);
+        foreach ($links[0] ?? [] as $link) {
+            $description = str_replace(
+                $link,
+                sprintf('<a href="%s" target="_blank">%s</a>', $link, $link),
+                $description
+            );
+        }
+
+        return $description;
+    }
+
     public function getThumbnailPath(): ?string
     {
         if ($this->bggId === null) {

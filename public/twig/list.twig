@@ -65,7 +65,7 @@
                         {% if game.description is not empty %}
                             <div class="row">
                                 <div class='col-xs-12'>
-                                    {{ game.description }}
+                                    {{ game.getHyperlinkedDescription() }}
                                 </div>
                             </div>
                         {% endif %}
@@ -96,14 +96,14 @@
                         <div class="row">
                             {% if current_user_id == game.createdBy %}
                                 <div class='col-xs-12 col-md-3'>
-                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=edit&id={{ game.id }}">
+                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas/?action=edit&id={{ game.id }}">
                                         <span style="vertical-align: middle" class="material-symbols-outlined">edit</span>
                                     </a>
                                 </div>
                             {% endif %}
                             {% if current_user_id == game.createdBy or is_admin %}
                                 <div class='col-xs-12 col-md-3'>
-                                    <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas?action=delete&id={{ game.id }}" onclick="return deleteGamePrompt()">
+                                    <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas/?action=delete&id={{ game.id }}" onclick="return deleteGamePrompt()">
                                         <span style="vertical-align: middle" class="material-symbols-outlined">delete</span>
                                     </a>
                                 </div>
