@@ -102,6 +102,7 @@ class GameCron
             'es',
             IntlDateFormatter::LONG,
             IntlDateFormatter::SHORT,
+            'Europe/Madrid',
         );
         $formatter->setPattern("eeee, dd 'de' MMMM 'a las' HH:mm");
         $day = ucfirst($formatter->format($game->startTime));
