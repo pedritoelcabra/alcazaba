@@ -106,7 +106,7 @@ class GameCron
         );
         $formatter->setPattern("eeee, dd 'de' MMMM 'a las' HH:mm");
         $day = ucfirst($formatter->format($game->startTime));
-        $bggLink = $game->bggId !== null ? sprintf(
+        $bggLink = ($game->bggId !== null && $game->bggId > 0) ? sprintf(
             PHP_EOL . '<a target="_blank" href="%s">Ver en BGG</a>',
             $game->bggLink()
         ) : '';
