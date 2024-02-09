@@ -94,7 +94,7 @@
                             </div>
                         {% endif %}
                         <div class="row">
-                            {% if current_user_id == game.createdBy %}
+                            {% if current_user_id == game.createdBy or is_admin %}
                                 <div class='col-xs-12 col-md-3'>
                                     <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas/?action=edit&id={{ game.id }}">
                                         <span style="vertical-align: middle" class="material-symbols-outlined">edit</span>
