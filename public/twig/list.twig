@@ -16,7 +16,7 @@
     {% endif %}
     <div class="row text-center">
         <div class='col-xs-12'>
-            <a class="btn btn-info" role="button" href="/lista-de-partidas?action=create">
+            <a class="btn btn-info" role="button" href="/lista-de-partidas?method=create">
                 Crear partida
             </a>
         </div>
@@ -96,21 +96,21 @@
                         <div class="row">
                             {% if current_user_id == game.createdBy or is_admin %}
                                 <div class='col-xs-12 col-md-3'>
-                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas/?action=edit&id={{ game.id }}">
+                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas/?method=edit&id={{ game.id }}">
                                         <span style="vertical-align: middle" class="material-symbols-outlined">edit</span>
                                     </a>
                                 </div>
                             {% endif %}
                             {% if current_user_id == game.createdBy or is_admin %}
                                 <div class='col-xs-12 col-md-3'>
-                                    <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas/?action=delete&id={{ game.id }}" onclick="return deleteGamePrompt()">
+                                    <a class="btn btn-info btn-game-list" role="button" href="/lista-de-partidas/?method=delete&id={{ game.id }}" onclick="return deleteGamePrompt()">
                                         <span style="vertical-align: middle" class="material-symbols-outlined">delete</span>
                                     </a>
                                 </div>
                             {% endif %}
                             {% if game.hasFreeSlots() and game.playerInGame(current_user_id) %}
                                 <div class='col-xs-12 col-md-3'>
-                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=plus&id={{ game.id }}">
+                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?method=plus&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">person_add</span>
                                     </a>
@@ -118,7 +118,7 @@
                             {% endif %}
                             {% if game.hasFreeSlots() and not game.playerInGame(current_user_id) %}
                                 <div class='col-xs-12 col-md-3'>
-                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=join&id={{ game.id }}">
+                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?method=join&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">person_add</span>
                                     </a>
@@ -126,7 +126,7 @@
                             {% endif %}
                             {% if game.playerHasOthers(current_user_id) %}
                                 <div class='col-xs-12 col-md-3'>
-                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=minus&id={{ game.id }}">
+                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?method=minus&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">person_cancel</span>
                                     </a>
@@ -134,7 +134,7 @@
                             {% endif %}
                             {% if game.playerInGame(current_user_id) and game.joinable %}
                                 <div class='col-xs-12 col-md-3'>
-                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?action=leave&id={{ game.id }}">
+                                    <a class="btn btn-info btn-game-list action-button" role="button" href="/lista-de-partidas?method=leave&id={{ game.id }}">
                                     <span style="vertical-align: middle"
                                           class="material-symbols-outlined">logout</span>
                                     </a>

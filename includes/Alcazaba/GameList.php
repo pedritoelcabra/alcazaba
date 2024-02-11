@@ -276,41 +276,41 @@ class GameList
             wp_schedule_event(time(), 'minutely', 'al_cron_hook');
         }
 
-        $action = $_REQUEST['action'] ?? '';
+        $method = $_REQUEST['method'] ?? '';
 
-        if ($action === 'create') {
+        if ($method === 'create') {
             return self::createGameForm();
         }
 
-        if ($action === 'save') {
+        if ($method === 'save') {
             return self::save();
         }
 
-        if ($action === 'delete') {
+        if ($method === 'delete') {
             return self::delete();
         }
 
-        if ($action === 'edit') {
+        if ($method === 'edit') {
             return self::edit();
         }
 
-        if ($action === 'update') {
+        if ($method === 'update') {
             return self::update();
         }
 
-        if ($action === 'plus') {
+        if ($method === 'plus') {
             return self::plus();
         }
 
-        if ($action === 'minus') {
+        if ($method === 'minus') {
             return self::minus();
         }
 
-        if ($action === 'join') {
+        if ($method === 'join') {
             return self::join();
         }
 
-        if ($action === 'leave') {
+        if ($method === 'leave') {
             return self::leave();
         }
 
