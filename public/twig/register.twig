@@ -1,0 +1,83 @@
+<form class="form-row" method="post" action="/ludoteca?method=save">
+    <div class="container text-center">
+        <div class="row">
+            <div class='col-sm-12 form-group'>
+                <h2>Añadir juego a la ludoteca</h2>
+            </div>
+        </div>
+        {% if error is not empty %}
+            <div class="row">
+                <div class='col-sm-12 form-group'>
+                    <div class="alert alert-warning" role="alert">
+                        {{ error }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <div class="row">
+            <div class='col-sm-12 form-group'>
+                <label for="game-name" class="control-label">Juego</label>
+                <div style="clear: both;"></div>
+                <input id="game-name" name="game-name" type="text" placeholder="Buscar en BGG"
+                    {% if sent is defined %}value="{{ sent['game-name'] }}"{% endif %}>
+                <input id="game-id" name="game-id" type="hidden"
+                   {% if sent is defined %}value="{{ sent['game-id'] }}"{% endif %}>
+                <input id="id" name="id" type="hidden" value="{% if id is defined %}{{ id }}{% endif %}">
+            </div>
+        </div>
+        <div class="row" id="game-spinner" style="display: none">
+            <div class='col-sm-12'>
+                <img height="100" width="100" src="/wp-content/plugins/wp-alcazaba/public/image/200w.gif" alt="">
+            </div>
+        </div>
+        <div class="row" id="game-link" style="display: none">
+            <div class='col-sm-12'>
+                <a id="game-link-a" href="" target="_blank"></a>
+            </div>
+        </div>
+        <div class="row margin-bottom-lg">
+            <div class='form-group col-sm-12'>
+                <input type="submit" value="Guardar">
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    let lastKey = -1
+    jQuery(function () {
+        if (jQuery("#game-id").val() && jQuery("#game-name").val()) {
+            jQuery("#game-link-a")
+                .attr('href', 'https://boardgamegeek.com/boardgame/' + jQuery("#game-id").val())
+                .html(jQuery("#game-name").val() + " en la BGG");
+            jQuery("#game-link").show();
+        }
+
+        let host = window.location.protocol + "//" + window.location.host;
+        jQuery("#game-name").autocomplete({
+            source:    function (request, response) {
+                jQuery.post(host + '/wp-admin/admin-ajax.php',
+                    {action: 'search_game', query: request.term},
+                    function (data) {
+                        response(data);
+                    },
+                );
+            },
+            minLength: 3,
+            delay:     500,
+            select:    function (event, ui) {
+                jQuery("#game-id").val(ui.item.id);
+                jQuery("#game-link-a")
+                    .attr('href', ui.item.url)
+                    .html(ui.item.label + " en la BGG");
+                jQuery("#game-link").show();
+            },
+            search:    function () {
+                jQuery('#game-spinner').show();
+                jQuery('#game-spinner')[0].scrollIntoView();
+            },
+            response:  function () {
+                jQuery('#game-spinner').hide();
+            },
+        });
+    });
+</script>

@@ -1,7 +1,5 @@
 <?php
 
-use Timber\Timber;
-
 class GameRepository
 {
     private const SYSTEM_USER = 'Sistema';

@@ -131,6 +131,7 @@ class Plugin_Name_Public
     public function registerShortcodes(): void
     {
         add_shortcode('lista_partidas', ['GameList', 'listGames']);
+        add_shortcode('ludoteca', ['GameRegister', 'ludoteca']);
         add_shortcode('crear_partida', ['GameList', 'createGameForm']);
 
         add_action('wp_ajax_search_game', ['GameList', 'ajaxListGames']);

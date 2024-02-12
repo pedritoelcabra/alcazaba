@@ -1,7 +1,5 @@
 <?php
 
-use Timber\Timber;
-
 class GameList
 {
     private static function redirectIfNotLoggedIn()
@@ -35,7 +33,7 @@ class GameList
     {
         self::redirectIfNotLoggedIn();
 
-        return self::fetchTemplate('create', []);
+        return TemplateParser::fetchTemplate('create', []);
     }
 
     public static function delete(): string
@@ -165,7 +163,7 @@ class GameList
             $data['error'] = $e->getMessage();
         }
 
-        return self::fetchTemplate('create', $data);
+        return TemplateParser::fetchTemplate('create', $data);
     }
 
     public static function update(): string
@@ -189,7 +187,7 @@ class GameList
             $data['error'] = $e->getMessage();
         }
 
-        return self::fetchTemplate('create', $data);
+        return TemplateParser::fetchTemplate('create', $data);
     }
 
     public static function edit(): string
@@ -213,7 +211,7 @@ class GameList
             $data['game-open'] = 1;
         }
 
-        return self::fetchTemplate('create', ['sent' => $data, 'id' => $game->id]);
+        return TemplateParser::fetchTemplate('create', ['sent' => $data, 'id' => $game->id]);
     }
 
     public static function ajaxListGames(): void
@@ -314,7 +312,7 @@ class GameList
             return self::leave();
         }
 
-        return self::fetchTemplate(
+        return TemplateParser::fetchTemplate(
             'list',
             [
                 'games' => self::gameRepo()->getAllFutureGames(),
@@ -323,18 +321,6 @@ class GameList
                 'current_user_id' => wp_get_current_user()->ID,
                 'is_admin' => current_user_can('administrator'),
             ]
-        );
-    }
-
-    private static function fetchTemplate(string $templateName, array $data): string
-    {
-        return Timber::fetch(
-            sprintf(
-                '%s../../public/twig/%s.twig',
-                plugin_dir_path(__FILE__),
-                $templateName
-            ),
-            $data
         );
     }
 }

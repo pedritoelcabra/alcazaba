@@ -1,0 +1,42 @@
+<div class="container">
+    <div class="row text-center">
+        <div class='col-xs-12'>
+            <h2>Ludoteca</h2>
+        </div>
+    </div>
+    {% if error is not empty %}
+        <div class="row">
+            <div class='col-sm-12 form-group'>
+                <div class="alert alert-warning" role="alert">
+                    {{ error }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% if can_edit %}
+        <div class="row text-center">
+            <div class='col-xs-12'>
+                <a class="btn btn-info" role="button" href="/ludoteca?method=create">
+                    Añadir juego
+                </a>
+            </div>
+        </div>
+    {% endif %}
+    <hr>
+    {% for game in games %}
+        <div class='col-xs-12 col-md-3'>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h4>{{ game.name }}</h4>
+                </div>
+                <div class="panel-body">
+                    {% if game.hasThumbnail() %}
+                        <img src="{{ game.publicThumbnailPath() }}" alt="Imágen no disponible">
+                    {% endif %}
+                </div>
+                <div class="panel-footer">
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

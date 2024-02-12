@@ -28,6 +28,7 @@ class Plugin_Name_Activator
 
         $tablePartidas = $wpdb->prefix . "partidas_alcazaba";
         $tableJugadores = $wpdb->prefix . "jugadores_alcazaba";
+        $tableGames = $wpdb->prefix . "juegos_alcazaba";
         $tableUsers = $wpdb->prefix . "users";
         $charset_collate = $wpdb->get_charset_collate();
 
@@ -67,6 +68,23 @@ CREATE TABLE IF NOT EXISTS $tableJugadores (
       CONSTRAINT `fk_game`
         FOREIGN KEY (game_id) REFERENCES $tablePartidas (id)
         ON DELETE CASCADE
+        ON UPDATE RESTRICT
+    ) $charset_collate;
+EOF;
+        dbDelta($sql);
+
+        $sql = <<<EOF
+CREATE TABLE IF NOT EXISTS $tableGames (
+      id mediumint(9) NOT NULL AUTO_INCREMENT,
+      created_on datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+      bgg_id bigint(20) DEFAULT NULL,
+      name varchar(55) NOT NULL,
+      loaner_id bigint(20) unsigned default null null,
+      loaned_on datetime DEFAULT '0000-00-00 00:00:00' default null null,
+      pending_bgg_sync TINYINT(1) DEFAULT TRUE NOT NULL,
+      PRIMARY KEY  (id),
+      CONSTRAINT `fk_loaner`
+        FOREIGN KEY (loaner_id) REFERENCES $tableUsers (ID)
         ON UPDATE RESTRICT
     ) $charset_collate;
 EOF;
