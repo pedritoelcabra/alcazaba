@@ -2,6 +2,8 @@
 
 class Boardgame
 {
+    use IsBggItem;
+
     public function __construct(
         public readonly ?int $id,
         public readonly ?string $bggId,

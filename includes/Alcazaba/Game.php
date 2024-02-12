@@ -2,6 +2,8 @@
 
 class Game
 {
+    use IsBggItem;
+
     /**
      * @param GamePlayer[] $players
      */

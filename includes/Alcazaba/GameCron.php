@@ -8,6 +8,7 @@ class GameCron
 
         self::googleSyncCron();
         self::bggSyncCron();
+        self::bggGameRegisterSyncCron();
         self::telegramSync();
     }
 
@@ -92,6 +93,48 @@ class GameCron
                 fwrite($fp, $content);
                 fclose($fp);
             }
+
+            // 1 item per cron run to avoid overloading BGG API
+            break;
+        }
+    }
+
+    private static function bggGameRegisterSyncCron(): void
+    {
+        $repo = new BoardgameRepository();
+        foreach ($repo->getAll('pending_bgg_sync = 1') as $game) {
+            $repo->setPendingBggSync($game->id, false);
+
+            if ($game->hasThumbnail()) {
+                continue;
+            }
+
+            Logger::info('Syncing ludoteca from bgg: ' . $game->id);
+            $url = sprintf('https://boardgamegeek.com/xmlapi2/thing?id=%s&stats=1', $game->bggId);
+            $xml = file_get_contents($url);
+
+            if ($xml === false) {
+                Logger::info('Failed getting: ' . $url);
+            }
+
+            $data = simplexml_load_string($xml);
+            if ($data === false) {
+                Logger::info('Failed decoding xml from: ' . $url);
+            }
+
+            $dataArray = json_decode(json_encode($data), true);
+
+            $thumbnail = $dataArray['item']['thumbnail'] ?? '';
+
+            if ($thumbnail !== '') {
+                $content = file_get_contents($thumbnail);
+                $fp = fopen($game->getThumbnailPath(), "w");
+                fwrite($fp, $content);
+                fclose($fp);
+            }
+
+            // 1 item per cron run to avoid overloading BGG API
+            break;
         }
     }
 
