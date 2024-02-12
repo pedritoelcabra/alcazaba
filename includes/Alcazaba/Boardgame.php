@@ -26,8 +26,29 @@ class Boardgame
 
         return new self(
             null,
-            (int) $data['game-id'],
+            (int)$data['game-id'],
             $data['game-name'],
         );
+    }
+
+    public function canLoan(): bool
+    {
+        return $this->loanerId === null;
+    }
+
+    public function loanedText(): string
+    {
+        if ($this->loanedOn === null) {
+            return '';
+        }
+
+        $days = (new DateTime())->diff($this->loanedOn)->days;
+
+        return sprintf('Sacado por %s hace %s dias', $this->loanerName, $days);
+    }
+
+    public function loanedByCurrentUser(): bool
+    {
+        return wp_get_current_user()->ID === $this->loanerId;
     }
 }

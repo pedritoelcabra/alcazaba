@@ -11,6 +11,11 @@ class BoardgameRepository
         return $wpdb->prefix . "juegos_alcazaba";
     }
 
+    public function get(int $id): Boardgame
+    {
+        return $this->getAll("id = $id")[0];
+    }
+
     /**
      * @return Boardgame[]
      */
@@ -51,6 +56,34 @@ class BoardgameRepository
             $this->tableName(),
             [
                 'pending_bgg_sync' => $val,
+            ],
+            ['id' => $id]
+        );
+    }
+
+    public function loanOut(int $id, int $userId): void
+    {
+        global $wpdb;
+
+        $wpdb->update(
+            $this->tableName(),
+            [
+                'loaner_id' => $userId,
+                'loaned_on' => (new DateTime())->format(DateTime::ATOM),
+            ],
+            ['id' => $id]
+        );
+    }
+
+    public function return(int $id): void
+    {
+        global $wpdb;
+
+        $wpdb->update(
+            $this->tableName(),
+            [
+                'loaner_id' => null,
+                'loaned_on' => null,
             ],
             ['id' => $id]
         );

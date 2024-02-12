@@ -28,8 +28,45 @@
             <div class="panel panel-info">
                 <div class="panel-heading">
                     <h4>{{ game.name }}</h4>
+                    {% if can_edit %}
+                        <a class="btn btn-info btn-game-list" role="button"
+                           href="/ludoteca/?method=delete&id={{ game.id }}"
+                           onclick="return deleteGamePrompt()">
+                            <span style="vertical-align: middle" class="material-symbols-outlined">delete</span>
+                        </a>
+                    {% endif %}
                 </div>
                 <div class="panel-body text-center">
+                    {% if is_user %}
+                        {% if game.canLoan() %}
+                            <div class="row">
+                                <div class='col-xs-12 text-center'>
+                                    <a class="btn btn-info btn-game-list action-button" role="button"
+                                       href="/ludoteca?method=loan&id={{ game.id }}"
+                                       onclick="return loanGamePrompt()">
+                                        Tomar prestado
+                                    </a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="row">
+                                <div class='col-xs-12 text-center'>
+                                    {{ game.loanedText() }}
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if game.loanedByCurrentUser() %}
+                            <div class="row">
+                                <div class='col-xs-12 text-center'>
+                                    <a class="btn btn-info btn-game-list action-button" role="button"
+                                       href="/ludoteca?method=return&id={{ game.id }}"
+                                       onclick="return returnGamePrompt()">
+                                        Devolver
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
                     {% if game.hasThumbnail() %}
                         <img src="{{ game.publicThumbnailPath() }}" alt="Imágen no disponible">
                     {% endif %}
@@ -40,3 +77,34 @@
         </div>
     {% endfor %}
 </div>
+<script>
+    function deleteGamePrompt() {
+        let input = confirm('Esto va eliminar el juego de la ludoteca para siempre. Continuamos?');
+
+        if (input !== false) {
+            jQuery('.btn-game-list').attr('style', 'pointer-events:none; filter: brightness(85%);');
+        }
+
+        return input;
+    }
+
+    function loanGamePrompt() {
+        let input = confirm('Vas a sacar el juego y tienes 2 semanas para devolverlo.');
+
+        if (input !== false) {
+            jQuery('.btn-game-list').attr('style', 'pointer-events:none; filter: brightness(85%);');
+        }
+
+        return input;
+    }
+
+    function returnGamePrompt() {
+        let input = confirm('Confirmo que el juego esta de vuelta en su sitio en el mismo estado que lo he sacado.');
+
+        if (input !== false) {
+            jQuery('.btn-game-list').attr('style', 'pointer-events:none; filter: brightness(85%);');
+        }
+
+        return input;
+    }
+</script>
