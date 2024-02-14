@@ -11,6 +11,13 @@ class BoardgameRepository
         return $wpdb->prefix . "juegos_alcazaba";
     }
 
+    private function logTableName(): string
+    {
+        global $wpdb;
+
+        return $wpdb->prefix . "juegos_log_alcazaba";
+    }
+
     public function get(int $id): Boardgame
     {
         return $this->getAll("id = $id")[0];
@@ -61,7 +68,7 @@ class BoardgameRepository
         );
     }
 
-    public function loanOut(int $id, int $userId): void
+    public function loanOut(Boardgame $game, int $userId): void
     {
         global $wpdb;
 
@@ -71,11 +78,23 @@ class BoardgameRepository
                 'loaner_id' => $userId,
                 'loaned_on' => (new DateTime())->format(DateTime::ATOM),
             ],
-            ['id' => $id]
+            ['id' => $game->id]
+        );
+
+        $wpdb->insert(
+            $this->logTableName(),
+            [
+                'created_on' => (new DateTime())->format(DateTime::ATOM),
+                'game_bgg_id' => $game->bggId,
+                'game_id' => $game->id,
+                'game_name' => $game->name,
+                'loaner_id' => $userId,
+                'loaner_name' => $this->getUserName($userId),
+            ]
         );
     }
 
-    public function return(int $id): void
+    public function return(Boardgame $game, int $userId): void
     {
         global $wpdb;
 
@@ -85,7 +104,19 @@ class BoardgameRepository
                 'loaner_id' => null,
                 'loaned_on' => null,
             ],
-            ['id' => $id]
+            ['id' => $game->id]
+        );
+
+        $wpdb->insert(
+            $this->logTableName(),
+            [
+                'created_on' => (new DateTime())->format(DateTime::ATOM),
+                'game_bgg_id' => $game->bggId,
+                'game_id' => $game->id,
+                'game_name' => $game->name,
+                'loaner_id' => $userId,
+                'loaner_name' => $this->getUserName($userId),
+            ]
         );
     }
 
@@ -120,5 +151,15 @@ class BoardgameRepository
         }
 
         return $wpdb->insert_id;
+    }
+
+    /**
+     * @param stdClass[] $users
+     */
+    public function delete(int $id): void
+    {
+        global $wpdb;
+
+        $wpdb->query("DELETE FROM {$this->tableName()} WHERE id = $id");
     }
 }

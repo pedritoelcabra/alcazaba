@@ -29,6 +29,7 @@ class Plugin_Name_Activator
         $tablePartidas = $wpdb->prefix . "partidas_alcazaba";
         $tableJugadores = $wpdb->prefix . "jugadores_alcazaba";
         $tableGames = $wpdb->prefix . "juegos_alcazaba";
+        $tableGameLog = $wpdb->prefix . "juegos_log_alcazaba";
         $tableUsers = $wpdb->prefix . "users";
         $charset_collate = $wpdb->get_charset_collate();
 
@@ -88,6 +89,21 @@ CREATE TABLE IF NOT EXISTS $tableGames (
         ON UPDATE RESTRICT
     ) $charset_collate;
 EOF;
+        dbDelta($sql);
+
+        $sql = <<<EOF
+CREATE TABLE IF NOT EXISTS $tableGameLog (
+      id mediumint(9) NOT NULL AUTO_INCREMENT,
+      created_on datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+      game_bgg_id bigint(20) DEFAULT NULL,
+      game_id mediumint(9) not null,
+      game_name varchar(255) DEFAULT NULL,
+      loaner_id bigint(20) unsigned DEFAULT NULL,
+      loaner_name varchar(255) DEFAULT NULL,
+      PRIMARY KEY  (id)
+    ) $charset_collate;
+EOF;
+
         dbDelta($sql);
     }
 }

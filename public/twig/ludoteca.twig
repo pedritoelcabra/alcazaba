@@ -55,7 +55,7 @@
                                 </div>
                             </div>
                         {% endif %}
-                        {% if game.loanedByCurrentUser() %}
+                        {% if game.loanedByCurrentUser() or is_admin %}
                             <div class="row">
                                 <div class='col-xs-12 text-center'>
                                     <a class="btn btn-info btn-game-list action-button" role="button"

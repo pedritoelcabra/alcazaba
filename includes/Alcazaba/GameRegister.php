@@ -63,7 +63,7 @@ class GameRegister
                 self::unauthorized();
             }
 
-            self::gameRepo()->loanOut($id, wp_get_current_user()->ID);
+            self::gameRepo()->loanOut($game, wp_get_current_user()->ID);
 
             self::redirectToLudoteca();
         } catch (Throwable $e) {
@@ -79,11 +79,24 @@ class GameRegister
             $id = (int)$_REQUEST['id'];
             $game = self::gameRepo()->get($id);
 
-            if (! $game->loanedByCurrentUser()) {
+            if (! $game->loanedByCurrentUser() && ! current_user_can('administrator')) {
                 self::unauthorized();
             }
 
-            self::gameRepo()->return($id);
+            self::gameRepo()->return($game, wp_get_current_user()->ID);
+
+            self::redirectToLudoteca();
+        } catch (Throwable $e) {
+            self::unauthorized();
+        }
+    }
+
+    public static function delete(): void
+    {
+        self::checkEditPermission();
+
+        try {
+            self::gameRepo()->delete((int)$_REQUEST['id']);
 
             self::redirectToLudoteca();
         } catch (Throwable $e) {
@@ -116,6 +129,10 @@ class GameRegister
 
         if ($method === 'return') {
             self::return();
+        }
+
+        if ($method === 'delete') {
+            self::delete();
         }
 
         return TemplateParser::fetchTemplate(
