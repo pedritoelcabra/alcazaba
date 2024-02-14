@@ -1,9 +1,4 @@
 <div class="container">
-    <div class="row text-center">
-        <div class='col-xs-12'>
-            <h2>Ludoteca</h2>
-        </div>
-    </div>
     {% if error is not empty %}
         <div class="row">
             <div class='col-sm-12 form-group'>
@@ -24,6 +19,9 @@
     {% endif %}
     <hr>
     {% for game in games %}
+        {% if loop.first %}
+        <div class="row">
+        {% endif %}
         <div class='col-xs-12 col-md-3'>
             <div class="panel panel-info">
                 <div class="panel-heading">
@@ -75,6 +73,13 @@
                 </div>
             </div>
         </div>
+        {% if loop.index % 4 == 0 %}
+            </div>
+            <div class="row">
+        {% endif %}
+        {% if loop.last %}
+            </div>
+        {% endif %}
     {% endfor %}
 </div>
 <script>
