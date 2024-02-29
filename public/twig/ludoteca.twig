@@ -18,14 +18,19 @@
         </div>
     {% endif %}
     <hr>
+    <div class="row">
+        <div class='col-sm-12 form-group'>
+            <input id="game-search" name="game-name" type="text" placeholder="Buscar" style="width: 100%">
+        </div>
+    </div>
     {% for game in games %}
         {% if loop.first %}
-        <div class="row">
+        <div class="row" style="min-height: 0">
         {% endif %}
-        <div class='col-xs-12 col-md-3'>
-            <div class="panel panel-info">
+        <div class='col-xs-12 col-md-3' style="min-height: 0">
+            <div class="panel panel-info game-container">
                 <div class="panel-heading">
-                    <h4>{{ game.name }}</h4>
+                    <h4 class="game-name">{{ game.name }}</h4>
                     {% if can_edit %}
                         <a class="btn btn-info btn-game-list" role="button"
                            href="/ludoteca/?method=delete&id={{ game.id }}"
@@ -75,7 +80,7 @@
         </div>
         {% if loop.index % 4 == 0 %}
             </div>
-            <div class="row">
+            <div class="row" style="min-height: 0">
         {% endif %}
         {% if loop.last %}
             </div>
@@ -83,6 +88,24 @@
     {% endfor %}
 </div>
 <script>
+    jQuery(function () {
+        jQuery('#game-search').on('keyup', function () {
+            filterGameList(jQuery('#game-search').val());
+        });
+    });
+
+    function filterGameList(searchTerm) {
+        jQuery('.game-name').each(function (element) {
+            let visible = this.innerHTML.toLowerCase().includes(searchTerm.toLowerCase());
+            if (visible) {
+                jQuery(this.closest('.game-container')).show();
+            } else {
+                jQuery(this.closest('.game-container')).hide();
+            }
+        });
+        console.log(searchTerm);
+    }
+
     function deleteGamePrompt() {
         let input = confirm('Esto va eliminar el juego de la ludoteca para siempre. Continuamos?');
 

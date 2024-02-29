@@ -323,4 +323,14 @@ class GameList
             ]
         );
     }
+
+    public static function topGames(): string
+    {
+        return TemplateParser::fetchTemplate(
+            'top',
+            [
+                'topGames' => self::gameRepo()->getTopGames(),
+            ]
+        );
+    }
 }

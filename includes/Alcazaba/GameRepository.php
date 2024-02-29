@@ -22,6 +22,20 @@ class GameRepository
     /**
      * @return Game[]
      */
+    public function getTopGames(): array
+    {
+        return $this->getGamesWhere('start_time > DATE_SUB(curdate(), INTERVAL 2 MONTH) ' .
+            'AND start_time < DATE_ADD(curdate(), INTERVAL 1 WEEK) ' .
+            'AND bgg_id IS NOT NULL ' .
+            'AND bgg_id > 0 ' .
+            'GROUP BY bgg_id ' .
+            'ORDER BY COUNT(bgg_id) DESC 
+            LIMIT 6');
+    }
+
+    /**
+     * @return Game[]
+     */
     public function getAllGamesPendingGcalSync(): array
     {
         return $this->getGamesWhere('1 AND start_time >= NOW() AND pending_gcal_sync = 1');

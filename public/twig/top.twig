@@ -1,0 +1,20 @@
+<div class="container">
+    <div class="row text-center">
+        <h3 style="width: 100%">Los más jugados últimamente</h3>
+    </div>
+    <div class="row text-center">
+        {% for game in topGames %}
+            <div class='col-xs-12 col-md-2'>
+                <div class="panel-heading">
+                </div>
+                <div class="panel-body text-center">
+                    <a target="_blank" href="{{ game.bggLink() }}">
+                        {% if game.hasThumbnail() %}
+                            <img src="{{ game.publicThumbnailPath() }}" alt="Imágen no disponible">
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
