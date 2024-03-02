@@ -41,6 +41,7 @@ class BoardgameRepository
                 $result->loaner_id,
                 $result->loaner_id !== null ? $this->getUserName($result->loaner_id) : null,
                 $result->loaner_id !== null ? DateTime::createFromFormat('Y-m-d H:i:s', $result->loaned_on, new DateTimeZone('Europe/Madrid')) : null,
+                $result->loanable,
             );
         }
 
@@ -143,6 +144,7 @@ class BoardgameRepository
                 'created_on' => (new DateTime())->format(DateTime::ATOM),
                 'bgg_id' => $game->bggId,
                 'name' => $game->name,
+                'loanable' => $game->loanable,
             ]
         );
 

@@ -8,6 +8,16 @@
             </div>
         </div>
     {% endif %}
+    {% if is_user %}
+        <div class="row text-center">
+            <div class='col-xs-12'>
+                <p style="text-align: center">
+                    Ten en cuenta que sólo puedes llevarte un juego del local si te sale el botón de "Tomar prestado".
+                    De lo contrario, aunque veas el juego en la estantería, no deberás llevártelo.
+                </p>
+            </div>
+        </div>
+    {% endif %}
     {% if can_edit %}
         <div class="row text-center">
             <div class='col-xs-12'>
@@ -58,7 +68,7 @@
                                 </div>
                             </div>
                         {% endif %}
-                        {% if game.loanedByCurrentUser() or is_admin %}
+                        {% if game.loanable and (game.loanedByCurrentUser() or is_admin) %}
                             <div class="row">
                                 <div class='col-xs-12 text-center'>
                                     <a class="btn btn-info btn-game-list action-button" role="button"

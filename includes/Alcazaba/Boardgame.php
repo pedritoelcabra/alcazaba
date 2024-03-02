@@ -11,6 +11,7 @@ class Boardgame
         public readonly ?int $loanerId = null,
         public readonly ?string $loanerName = null,
         public readonly ?DateTime $loanedOn = null,
+        public readonly bool $loanable = false,
     ) {
     }
 
@@ -20,24 +21,35 @@ class Boardgame
             throw new RuntimeException('Es necesario elegir un juego de la BGG');
         }
 
-        if (strlen(($data['game-name'] ?? '')) < 3) {
+        $name = $data['game-name'] ?? '';
+        $name = str_replace('\\', '', $name);
+
+        if (strlen($name) < 3) {
             throw new RuntimeException('Nombre demasiado corto');
         }
 
         return new self(
             null,
             (int)$data['game-id'],
-            $data['game-name'],
+            $name,
+            null,
+            null,
+            null,
+            ($data['game-member-owned'] ?? false) === false
         );
     }
 
     public function canLoan(): bool
     {
-        return $this->loanerId === null;
+        return $this->loanable && $this->loanerId === null;
     }
 
     public function loanedText(): string
     {
+        if ($this->loanable === false) {
+            return 'Juego de socio';
+        }
+
         if ($this->loanedOn === null) {
             return '';
         }

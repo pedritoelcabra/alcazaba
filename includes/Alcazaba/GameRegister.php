@@ -79,6 +79,10 @@ class GameRegister
             $id = (int)$_REQUEST['id'];
             $game = self::gameRepo()->get($id);
 
+            if (! $game->loanable) {
+                self::unauthorized();
+            }
+
             if (! $game->loanedByCurrentUser() && ! current_user_can('administrator')) {
                 self::unauthorized();
             }

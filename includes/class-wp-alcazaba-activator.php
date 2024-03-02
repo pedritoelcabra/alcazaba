@@ -83,6 +83,7 @@ CREATE TABLE IF NOT EXISTS $tableGames (
       loaner_id bigint(20) unsigned default null null,
       loaned_on datetime DEFAULT '0000-00-00 00:00:00' default null null,
       pending_bgg_sync TINYINT(1) DEFAULT TRUE NOT NULL,
+      loanable TINYINT(1) DEFAULT FALSE NOT NULL,
       PRIMARY KEY  (id),
       CONSTRAINT `fk_loaner`
         FOREIGN KEY (loaner_id) REFERENCES $tableUsers (ID)
