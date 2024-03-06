@@ -6,6 +6,9 @@
         {% for game in topGames %}
             <div class='col-xs-12 col-md-2'>
                 <div class="panel-heading">
+                    <p style="font-size: {{ 30 - loop.index - loop.index }}px">
+                        {{ loop.index }}.º
+                    </p>
                 </div>
                 <div class="panel-body text-center">
                     <a target="_blank" href="{{ game.bggLink() }}">

@@ -86,14 +86,6 @@ class GameRepository
             );
         }
 
-        usort($games, static function (Game $a, Game $b): int {
-            if ($a->startTime === $b->startTime) {
-                return 0;
-            }
-
-            return $a->startTime > $b->startTime ? 1 : -1;
-        });
-
         return $games;
     }
 
