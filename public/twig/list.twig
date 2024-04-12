@@ -35,7 +35,7 @@
             <div class="panel-heading">
                 <div class="row">
                     <div class='col-xs-12 col-md-3'>
-                        {{ game.startTime|date("H:i") }}
+                        {{ game.startTime|date("H:i") }}{% if game.endTime is not empty %} - {{ game.endTime|date("H:i") }}{% endif %}
                     </div>
                     <div class='col-xs-12 col-md-3'>
                         {{ game.name }}

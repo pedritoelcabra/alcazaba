@@ -206,6 +206,7 @@ class GameList
         $data['game-description'] = $description;
         $data['game-id'] = $game->bggId;
         $data['game-datetime'] = $game->startTime->format('Y-m-d H:i');
+        $data['game-endtime'] = $game->endTime ? $game->endTime->format('Y-m-d H:i') : '';
         $data['game-players'] = $game->maxPlayers;
         if ($game->joinable) {
             $data['game-open'] = 1;

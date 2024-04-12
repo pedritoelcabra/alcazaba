@@ -71,6 +71,11 @@ class GameRepository
         $games = [];
         $playerRepo = new GamePlayerRepository();
         foreach ($results as $result) {
+            $end = null;
+            $endDt = DateTime::createFromFormat('Y-m-d H:i:s', $result->end_time ?? '', new DateTimeZone('Europe/Madrid'));
+            if ($endDt !== false) {
+                $end = $endDt;
+            }
             $games[] = new Game(
                 $result->id,
                 DateTime::createFromFormat('Y-m-d H:i:s', $result->created_on, new DateTimeZone('Europe/Madrid')),
@@ -84,7 +89,8 @@ class GameRepository
                 $result->max_players,
                 $playerRepo->forGame($result->id),
                 $result->description,
-                $result->bgg_weight
+                $result->bgg_weight,
+                $end,
             );
         }
 
@@ -197,6 +203,11 @@ class GameRepository
         }
 
         $playerRepo = new GamePlayerRepository();
+        $end = null;
+        $endDt = DateTime::createFromFormat('Y-m-d H:i:s', $result->end_time ?? '', new DateTimeZone('Europe/Madrid'));
+        if ($endDt !== false) {
+            $end = $endDt;
+        }
         return new Game(
             $result->id,
             DateTime::createFromFormat('Y-m-d H:i:s', $result->created_on, new DateTimeZone('Europe/Madrid')),
@@ -211,6 +222,7 @@ class GameRepository
             $playerRepo->forGame($result->id),
             $result->description,
             $result->bgg_weight,
+            $end
         );
     }
 
@@ -228,6 +240,10 @@ class GameRepository
     {
         global $wpdb;
 
+        $endTime = null;
+        if ($game->endTime !== null) {
+            $endTime = $game->endTime->format(DateTime::ATOM);
+        }
         $res = $wpdb->insert(
             $this->tableName(),
             [
@@ -235,6 +251,7 @@ class GameRepository
                 'created_by' => $game->createdBy,
                 'bgg_id' => $game->bggId,
                 'start_time' => $game->startTime->format(DateTime::ATOM),
+                'end_time' => $endTime,
                 'name' => $game->name,
                 'joinable' => $game->joinable,
                 'max_players' => $game->maxPlayers,
@@ -253,11 +270,16 @@ class GameRepository
     {
         global $wpdb;
 
+        $endTime = null;
+        if ($game->endTime !== null) {
+            $endTime = $game->endTime->format(DateTime::ATOM);
+        }
         $res = $wpdb->update(
             $this->tableName(),
             [
                 'bgg_id' => $game->bggId,
                 'start_time' => $game->startTime->format(DateTime::ATOM),
+                'end_time' => $endTime,
                 'name' => $game->name,
                 'joinable' => $game->joinable,
                 'max_players' => $game->maxPlayers,

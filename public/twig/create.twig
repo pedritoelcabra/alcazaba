@@ -44,6 +44,21 @@
             </div>
         </div>
         <div class="row">
+            <div class='form-group col-sm-12' id="endtime-box"
+                 style="{% if sent is defined and sent['game-endtime'] is not empty %}display: none{% endif %}">
+                <label for="add-endtime" class="control-label">Añadir hora de fin</label>
+                <div style="clear: both;"></div>
+                <input id="add-endtime" name="add-endtime" type="checkbox">
+            </div>
+            <div class='form-group col-sm-6 col-sm-offset-3' id="endtime-field"
+                 style="{% if sent is defined and sent['game-endtime'] is not empty %}{% else %}display: none{% endif %}">
+                <label for="game-endtime" class="control-label">Hora de final</label>
+                <div style="clear: both;"></div>
+                <input name="game-endtime" id="game-endtime" class="flatpickr flatpickr-input" type="hidden"
+                       placeholder="¿Cuándo acabaremos?">
+            </div>
+        </div>
+        <div class="row">
             <div class='form-group col-sm-12' id="description-box"
                 style="{% if sent is defined and sent['game-description'] is not empty %}display: none{% endif %}">
                 <label for="add-description" class="control-label">Añadir una descripción</label>
@@ -91,7 +106,16 @@
 <script>
     let lastKey = -1
     jQuery(function () {
-        let picker = flatpickr(".flatpickr", {
+        let pickerStart = flatpickr("#game-datetime", {
+            enableTime: true,
+            altInput:   true,
+            altFormat:  "l d, a \\la\\s H:i",
+            dateFormat: "Y-m-d H:i",
+            time_24hr:  true,
+            locale:     'es',
+            minDate: "today",
+        });
+        let pickerEnd = flatpickr("#game-endtime", {
             enableTime: true,
             altInput:   true,
             altFormat:  "l d, a \\la\\s H:i",
@@ -102,7 +126,7 @@
         });
 
         {% if sent is defined %}
-        picker.setDate('{{ sent['game-datetime'] }}');
+        pickerStart.setDate('{{ sent['game-datetime'] }}');
         if (jQuery('#game-open').is(':checked')) {
             jQuery('#player-number').show();
         } else {
@@ -110,9 +134,18 @@
         }
         {% endif %}
 
+        {% if sent is defined and sent['game-endtime'] is not empty %}
+        pickerEnd.setDate('{{ sent['game-endtime'] }}');
+        {% endif %}
+
         jQuery('#add-description').on('click', function () {
             jQuery('#description-box').hide();
             jQuery('#description-field').show();
+        });
+
+        jQuery('#add-endtime').on('click', function () {
+            jQuery('#endtime-box').hide();
+            jQuery('#endtime-field').show();
         });
 
         jQuery('#game-open').on('click', function () {

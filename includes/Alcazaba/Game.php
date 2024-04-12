@@ -21,6 +21,7 @@ class Game
         public readonly array $players = [],
         public readonly ?string $description = null,
         public readonly ?float $weight = null,
+        public readonly ?DateTime $endTime = null,
     ) {
     }
 
@@ -62,6 +63,29 @@ class Game
         return $startDt;
     }
 
+    private static function endFromPost(array $data, DateTime $startDt): ?DateTime
+    {
+        $end = $data['game-endtime'] ?? null;
+        if ($end === null) {
+            return null;
+        }
+
+        $endDt = DateTime::createFromFormat('Y-m-d H:i', $end, new DateTimeZone('Europe/Madrid'));
+        if ($endDt === false) {
+            return null;
+        }
+
+        if ($endDt <= $startDt) {
+            throw new Exception('La hora de final no puede ser antes que la de inicio.');
+        }
+
+        if ($startDt->diff($endDt)->days > 0) {
+            throw new Exception('La partida no puede durar más de 24 horas.');
+        }
+
+        return $endDt;
+    }
+
     public static function fromPost(array $data): self
     {
         $maxPlayers = (int) ($data['game-players'] ?? 0);
@@ -72,13 +96,15 @@ class Game
         }
 
         $currentUser = wp_get_current_user();
+        $start = self::startFromPost($data);
+        $end = self::endFromPost($data, $start);
 
         return new self(
             null,
             new DateTime(),
             $currentUser->ID,
             $currentUser->user_nicename,
-            self::startFromPost($data),
+            $start,
             self::nameFromPost($data),
             $data['game-id'] ?? '',
             null,
@@ -86,6 +112,8 @@ class Game
             $maxPlayers,
             [],
             self::descriptionFromPost($data),
+            null,
+            $end,
         );
     }
 
@@ -97,13 +125,15 @@ class Game
         if ($open && $maxPlayers < 1) {
             throw new Exception('El número de jugadores es obligatorio para partidas abiertas.');
         }
+        $start = self::startFromPost($data);
+        $end = self::endFromPost($data, $start);
 
         return new self(
             $this->id,
             $this->createdOn,
             $this->createdBy,
             $this->createdByName,
-            self::startFromPost($data),
+            $start,
             self::nameFromPost($data),
             $data['game-id'] ?? '',
             $this->gcalId,
@@ -111,6 +141,8 @@ class Game
             $maxPlayers,
             [],
             self::descriptionFromPost($data),
+            null,
+            $end,
         );
     }
 
