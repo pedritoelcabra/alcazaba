@@ -30,7 +30,9 @@ class GameRepository
             'AND bgg_id > 0 ' .
             'GROUP BY bgg_id ' .
             'ORDER BY COUNT(bgg_id) DESC 
-            LIMIT 6');
+            LIMIT 6',
+            false
+        );
     }
 
     /**
@@ -60,7 +62,7 @@ class GameRepository
     /**
      * @return Game[]
      */
-    private function getGamesWhere(string $where): array
+    private function getGamesWhere(string $where, bool $sortByStartTime = true): array
     {
         global $wpdb;
 
@@ -84,6 +86,16 @@ class GameRepository
                 $result->description,
                 $result->bgg_weight
             );
+        }
+
+        if ($sortByStartTime) {
+            usort($games, static function (Game $a, Game $b): int {
+                if ($a->startTime === $b->startTime) {
+                    return 0;
+                }
+
+                return $a->startTime > $b->startTime ? 1 : -1;
+            });
         }
 
         return $games;
