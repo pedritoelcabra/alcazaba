@@ -18,20 +18,21 @@ class GoogleSync
 
         $service = new Google_Service_Calendar($client);
 
-        $endDt = $game->startTime->add(DateInterval::createFromDateString('3 hours'));
+        $startTime = $game->startTime->format(DateTime::ISO8601);
+        $endDt = $game->startTime->add(DateInterval::createFromDateString('3 hours'))->format(DateTime::ISO8601);
         if ($game->endTime !== null) {
-            $endDt = $game->endTime;
+            $endDt = $game->endTime->format(DateTime::ISO8601);
         }
 
         $event = new Google_Service_Calendar_Event([
             'summary' => $game->name,
             'description' => $game->simpleHtmlDescription(),
             'start' => [
-                'dateTime' => $game->startTime->format(DateTime::ISO8601),
+                'dateTime' => $startTime,
                 'timeZone' => "Europe/Madrid",
             ],
             'end' => [
-                'dateTime' => $endDt->format(DateTime::ISO8601),
+                'dateTime' => $endDt,
                 'timeZone' => "Europe/Madrid",
             ],
         ]);
@@ -53,18 +54,19 @@ class GoogleSync
 
         $event = $service->events->get(self::CALENDAR, $game->gcalId);
 
-        $endDt = $game->startTime->add(DateInterval::createFromDateString('3 hours'));
+        $startTime = $game->startTime->format(DateTime::ISO8601);
+        $endDt = $game->startTime->add(DateInterval::createFromDateString('3 hours'))->format(DateTime::ISO8601);
         if ($game->endTime !== null) {
-            $endDt = $game->endTime;
+            $endDt = $game->endTime->format(DateTime::ISO8601);
         }
 
         $event->setSummary($game->name);
         $event->setDescription($game->simpleHtmlDescription());
         $event->setStart(new Calendar\EventDateTime([
-            'dateTime' => $game->startTime->format(DateTime::ISO8601),
+            'dateTime' => $startTime,
         ]));
         $event->setEnd(new Calendar\EventDateTime([
-            'dateTime' => $endDt->format(DateTime::ISO8601),
+            'dateTime' => $endDt,
         ]));
 
         $service->events->update(self::CALENDAR, $game->gcalId, $event);
