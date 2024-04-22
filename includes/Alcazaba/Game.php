@@ -56,7 +56,7 @@ class Game
             throw new Exception('Debe incluir una fecha válida.');
         }
 
-        if ($startDt < new DateTime()) {
+        if ($startDt < (new DateTime())->sub(DateInterval::createFromDateString('6 hours'))) {
             throw new Exception('La fecha de comienzo debe estar en el futuro.');
         }
 

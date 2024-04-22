@@ -184,6 +184,7 @@ class GameList
             exit;
         } catch (Throwable $e) {
             $data['sent'] = $_POST;
+            $data['id'] = $gameId;
             $data['error'] = $e->getMessage();
         }
 

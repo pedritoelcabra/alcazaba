@@ -16,7 +16,7 @@ class GameRepository
      */
     public function getAllFutureGames(): array
     {
-        return $this->getGamesWhere('1 AND start_time >= NOW()');
+        return $this->getGamesWhere('1 AND start_time >= CURDATE()');
     }
 
     /**
