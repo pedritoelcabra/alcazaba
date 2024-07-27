@@ -139,7 +139,7 @@ class Plugin_Name_Public
         add_action('wp_ajax_nopriv_search_game', ['GameList', 'ajaxListGames']);
 
         add_action('al_cron_hook', ['GameCron', 'cron']);
-        add_action('al_cron_hook', ['GameCron', 'dailyCron']);
+        add_action('al_cron_hook_daily', ['GameCron', 'dailyCron']);
 
         add_filter( 'cron_schedules', 'alAddMinuteSchedule' );
     }
@@ -149,10 +149,6 @@ function alAddMinuteSchedule( $schedules ) {
     $schedules['minutely'] = array(
         'interval' => 60, // One minute in seconds
         'display'  => __( 'Each Minute' ),
-    );
-    $schedules['daily'] = array(
-        'interval' => 86400, // One day in seconds
-        'display'  => __( 'Each Day' ),
     );
 
     return $schedules;
