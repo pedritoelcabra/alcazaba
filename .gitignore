@@ -3,3 +3,4 @@ public/image/games/*
 logs/*
 .idea/*
 includes/Alcazaba/google.json
+includes/Alcazaba/telegram.json
