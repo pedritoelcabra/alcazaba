@@ -56,6 +56,14 @@ class BoardgameRepository
         return $games;
     }
 
+    /**
+     * @return Boardgame[]
+     */
+    public function getGamesOverDue(): array
+    {
+        return $this->getAll('loaned_on < DATE_SUB(CURDATE(), INTERVAL 2 WEEK)');
+    }
+
     public function setPendingBggSync(int $id, bool $val): void
     {
         global $wpdb;

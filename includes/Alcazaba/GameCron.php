@@ -12,6 +12,13 @@ class GameCron
         self::telegramSync();
     }
 
+    public static function dailyCron(): void
+    {
+        Logger::info('Executing daily cron ' . time());
+
+        self::telegramDailyUpdate();
+    }
+
     private static function googleSyncCron(): void
     {
         $repo = new GameRepository();
@@ -36,17 +43,8 @@ class GameCron
 
             Logger::info('Sending to telegram: ' . $game->id);
 
-            try {
-                $credentials = json_decode(file_get_contents(plugin_dir_path(__FILE__) . 'telegram.json'), 1);
-            } catch (Throwable $e) {
-                Logger::info($e->getMessage());
-
-                continue;
-            }
-
-            if (empty($credentials['bot']) || empty($credentials['channel'])) {
-                Logger::info('Invalid telegram credentials');
-
+            $credentials = self::getTelegramCredentials();
+            if ($credentials === []) {
                 continue;
             }
 
@@ -59,6 +57,50 @@ class GameCron
 
             file_get_contents($url);
         }
+    }
+
+    private static function telegramDailyUpdate(): void
+    {
+        $repo = new BoardgameRepository();
+        $overDueGames = $repo->getGamesOverDue();
+        if ($overDueGames === []) {
+            Logger::info('No overdue games!');
+            return;
+        }
+        Logger::info('Sending overdue message to telegram.');
+
+        $credentials = self::getTelegramCredentials();
+        if ($credentials === []) {
+            return;
+        }
+
+        $url = sprintf(
+            'https://api.telegram.org/bot%s/sendMessage?parse_mode=HTML&chat_id=%s&text=%s',
+            $credentials['bot'],
+            $credentials['channel'],
+            urlencode(self::overDueGamesMessage($overDueGames))
+        );
+
+        file_get_contents($url);
+    }
+
+    private static function getTelegramCredentials(): array
+    {
+        try {
+            $credentials = json_decode(file_get_contents(plugin_dir_path(__FILE__) . 'telegram.json'), 1);
+        } catch (Throwable $e) {
+            Logger::info($e->getMessage());
+
+            return [];
+        }
+
+        if (empty($credentials['bot']) || empty($credentials['channel'])) {
+            Logger::info('Invalid telegram credentials');
+
+            return [];
+        }
+
+        return $credentials;
     }
 
     private static function bggSyncCron(): void
@@ -168,6 +210,22 @@ class GameCron
 <strong>-- $name --</strong>
 <strong>$day</strong>$bggLink
 Creada por: {$createdBy}{$abierta}{$joinLink}{$description}
+EOF;
+    }
+
+    /** @param $games Boardgame[] */
+    private static function overDueGamesMessage(array $games): string
+    {
+        $list = '';
+        foreach ($games as $game) {
+            $list .= sprintf(' - %s, %s%s', $game->name, $game->loanedText(), PHP_EOL);
+        }
+
+        return <<<EOF
+<strong>Recordatorio Ludoteca!</strong>
+
+$list
+Sabemos que son juegazos difíciles de soltar 😜
 EOF;
     }
 }

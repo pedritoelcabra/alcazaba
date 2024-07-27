@@ -268,13 +268,20 @@ class GameList
         return new GamePlayerRepository();
     }
 
-    public static function listGames(): string
+    public static function scheduleCron(): void
     {
-        self::redirectIfNotLoggedIn();
-
         if (!wp_next_scheduled('al_cron_hook')) {
             wp_schedule_event(time(), 'minutely', 'al_cron_hook');
         }
+        if (!wp_next_scheduled('al_cron_hook_daily')) {
+            wp_schedule_event(time(), 'daily', 'al_cron_hook');
+        }
+    }
+
+    public static function listGames(): string
+    {
+        self::redirectIfNotLoggedIn();
+        self::scheduleCron();
 
         $method = $_REQUEST['method'] ?? '';
 
