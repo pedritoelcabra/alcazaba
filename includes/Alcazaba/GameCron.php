@@ -43,19 +43,7 @@ class GameCron
 
             Logger::info('Sending to telegram: ' . $game->id);
 
-            $credentials = self::getTelegramCredentials();
-            if ($credentials === []) {
-                continue;
-            }
-
-            $url = sprintf(
-                'https://api.telegram.org/bot%s/sendMessage?parse_mode=HTML&chat_id=%s&text=%s',
-                $credentials['bot'],
-                $credentials['channel'],
-                urlencode(self::telegramMessage($game))
-            );
-
-            file_get_contents($url);
+            self::sendToTelegram(self::telegramMessage($game));
         }
     }
 
@@ -69,6 +57,11 @@ class GameCron
         }
         Logger::info('Sending overdue message to telegram.');
 
+        self::sendToTelegram(self::overDueGamesMessage($overDueGames));
+    }
+
+    private static function sendToTelegram(string $message): void
+    {
         $credentials = self::getTelegramCredentials();
         if ($credentials === []) {
             return;
@@ -78,7 +71,7 @@ class GameCron
             'https://api.telegram.org/bot%s/sendMessage?parse_mode=HTML&chat_id=%s&text=%s',
             $credentials['bot'],
             $credentials['channel'],
-            urlencode(self::overDueGamesMessage($overDueGames))
+            urlencode($message)
         );
 
         file_get_contents($url);
@@ -196,7 +189,7 @@ class GameCron
             $game->bggLink()
         ) : '';
         $createdBy = $game->createdByName;
-        $description = substr((string)$game->description, 0, 1000);
+        $description = $game->telegramSafeDescription();
         if ($description !== '') {
             $description = PHP_EOL . '<strong>Descripción</strong>' . PHP_EOL . $description;
         }

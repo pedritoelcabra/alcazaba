@@ -261,4 +261,13 @@ class Game
 
         return sprintf('https://boardgamegeek.com/boardgame/%s', $this->bggId);
     }
+
+    public function telegramSafeDescription(): string
+    {
+        $strippedDescription = $this->description;
+        $strippedDescription = str_replace('<br />', ' ', $strippedDescription);
+        $strippedDescription = str_replace('<br/>', ' ', $strippedDescription);
+
+        return substr($strippedDescription, 0, 1000);
+    }
 }
