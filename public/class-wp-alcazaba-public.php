@@ -134,6 +134,7 @@ class Plugin_Name_Public
         add_shortcode('top_partidas', ['GameList', 'topGames']);
         add_shortcode('ludoteca', ['GameRegister', 'ludoteca']);
         add_shortcode('crear_partida', ['GameList', 'createGameForm']);
+        add_shortcode('alcazaba_stats', ['Statistics', 'stats']);
 
         add_action('wp_ajax_search_game', ['GameList', 'ajaxListGames']);
         add_action('wp_ajax_nopriv_search_game', ['GameList', 'ajaxListGames']);

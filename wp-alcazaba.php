@@ -69,6 +69,7 @@ register_deactivation_hook(__FILE__, 'deactivate_plugin_name');
 require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 require plugin_dir_path(__FILE__) . 'includes/class-wp-alcazaba.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GameList.php';
+require plugin_dir_path(__FILE__) . 'includes/Alcazaba/Statistics.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/IsBggItem.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GameRegister.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/BoardgameRepository.php';

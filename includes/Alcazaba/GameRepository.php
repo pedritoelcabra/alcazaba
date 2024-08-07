@@ -22,6 +22,16 @@ class GameRepository
     /**
      * @return Game[]
      */
+    public function getAllGameStartTimes(): array
+    {
+        global $wpdb;
+
+        return $wpdb->get_col("SELECT start_time FROM {$this->tableName()} WHERE 1");
+    }
+
+    /**
+     * @return Game[]
+     */
     public function getTopGames(): array
     {
         return $this->getGamesWhere('start_time > DATE_SUB(curdate(), INTERVAL 2 MONTH) ' .

@@ -1,0 +1,83 @@
+<div class="container">
+    <div class="row">
+        <div class='col-sm-12 form-group'>
+            <select id="select_visualization" onchange="changeProjection(this.value)">
+                <option value="por_semana" selected="selected">Partidas por semana</option>
+                <option value="por_semana_y_dia">Partidas por semana y día</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class='col-sm-12 form-group'>
+            <div id="myplot"></div>
+        </div>
+    </div>
+</div>
+<script>
+</script>
+<script type="module">
+
+    import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm";
+
+    window.changeProjection = function(value) {
+        const plot = functions[value]();
+        const div = document.querySelector("#myplot");
+        div.innerHTML = '';
+        div.append(plot);
+    }
+
+    const functions = {
+        por_semana: function () {
+            const data = [];
+            for (let i = 52; i > 0; i--) {
+                const start = new Date();
+                start.setDate((new Date()).getDate() - (7 * i));
+                const end = new Date();
+                end.setDate((new Date()).getDate() - (7 * (i - 1)));
+                const partidasSemana = gameDateTimeObjects.filter(game => game.start > start && game.start < end);
+                const Partidas = partidasSemana.length;
+                const Semana = 52 - i;
+                data.push({Partidas, Semana});
+            }
+            return Plot.plot({marks: [Plot.lineY(data, {x: "Semana", y: "Partidas"})]})
+        },
+        por_semana_y_dia: function () {
+            const data = [];
+            for (let i = 52; i > 0; i--) {
+                const start = new Date();
+                start.setDate((new Date()).getDate() - (7 * i));
+                const end = new Date();
+                end.setDate((new Date()).getDate() - (7 * (i - 1)));
+                const partidasSemana = gameDateTimeObjects.filter(game => game.start > start && game.start < end);
+                const Partidas = partidasSemana.length;
+                const Semana = 52 - i;
+                const Lunes = partidasSemana.filter(game => game.start.getDay() === 1).length;
+                const Martes = partidasSemana.filter(game => game.start.getDay() === 2).length;
+                const Miercoles = partidasSemana.filter(game => game.start.getDay() === 3).length;
+                const Jueves = partidasSemana.filter(game => game.start.getDay() === 4).length;
+                const Viernes = partidasSemana.filter(game => game.start.getDay() === 5).length;
+                const Sabado = partidasSemana.filter(game => game.start.getDay() === 6).length;
+                const Domingo = partidasSemana.filter(game => game.start.getDay() === 0).length;
+                data.push({Partidas: Partidas, Semana, Symbol: 'Total Semana'});
+                data.push({Partidas: Lunes, Semana, Symbol: 'Lunes'});
+                data.push({Partidas: Martes, Semana, Symbol: 'Martes'});
+                data.push({Partidas: Miercoles, Semana, Symbol: 'Miercoles'});
+                data.push({Partidas: Jueves, Semana, Symbol: 'Jueves'});
+                data.push({Partidas: Viernes, Semana, Symbol: 'Viernes'});
+                data.push({Partidas: Sabado, Semana, Symbol: 'Sabado'});
+                data.push({Partidas: Domingo, Semana, Symbol: 'Domingo'});
+            }
+            return Plot.plot({
+                color: {legend: true},
+                marks: [
+                    Plot.lineY(data, {x: "Semana", y: "Partidas", stroke: "Symbol"}),
+                ]
+            })
+        },
+    };
+
+    const gameDateTimes = JSON.parse(atob('{{ gameDateTimes }}'));
+    const gameDateTimeObjects = gameDateTimes.map(startTime => {return {start: new Date(startTime)}});
+
+    window.changeProjection('por_semana');
+</script>
