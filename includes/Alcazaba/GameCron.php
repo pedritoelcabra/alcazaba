@@ -151,6 +151,8 @@ class GameCron
             $bggId,
             json_encode($dataArray)
         );
+
+        Logger::info('Syncing bgg metadata from bgg: ' . $bggId);
     }
 
     private static function bggGameRegisterSyncCron(): void
