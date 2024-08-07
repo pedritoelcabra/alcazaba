@@ -9,6 +9,7 @@ class GameCron
         self::googleSyncCron();
         self::bggSyncCron();
         self::bggGameRegisterSyncCron();
+        self::bggMetadataSync();
         self::telegramSync();
     }
 
@@ -134,6 +135,24 @@ class GameCron
         }
     }
 
+    private static function bggMetadataSync(): void
+    {
+        $repo = new BggDataRepository();
+        $bggId = $repo->getFirstBggGameNeedingSync();
+        if ($bggId === null) {
+            echo 'no sync needed';
+            return;
+        }
+
+        $dataArray = self::getBggXml($bggId);
+
+        $repo->saveBggMetadata(
+            $dataArray['item']['name'][0]['@attributes']['value'] ?? $bggId,
+            $bggId,
+            json_encode($dataArray)
+        );
+    }
+
     private static function bggGameRegisterSyncCron(): void
     {
         $repo = new BoardgameRepository();
@@ -145,19 +164,10 @@ class GameCron
             }
 
             Logger::info('Syncing ludoteca from bgg: ' . $game->id);
-            $url = sprintf('https://boardgamegeek.com/xmlapi2/thing?id=%s&stats=1', $game->bggId);
-            $xml = file_get_contents($url);
-
-            if ($xml === false) {
-                Logger::info('Failed getting: ' . $url);
+            $dataArray = self::getBggXml($game->bggId);
+            if ($dataArray === []) {
+                continue;
             }
-
-            $data = simplexml_load_string($xml);
-            if ($data === false) {
-                Logger::info('Failed decoding xml from: ' . $url);
-            }
-
-            $dataArray = json_decode(json_encode($data), true);
 
             $thumbnail = $dataArray['item']['thumbnail'] ?? '';
 
@@ -171,6 +181,28 @@ class GameCron
             // 1 item per cron run to avoid overloading BGG API
             break;
         }
+    }
+
+    private static function getBggXml(string $bggId): array
+    {
+        Logger::info('Syncing ludoteca from bgg: ' . $bggId);
+        $url = sprintf('https://boardgamegeek.com/xmlapi2/thing?id=%s&stats=1', $bggId);
+        $xml = file_get_contents($url);
+
+        if ($xml === false) {
+            Logger::info('Failed getting: ' . $url);
+
+            return [];
+        }
+
+        $data = simplexml_load_string($xml);
+        if ($data === false) {
+            Logger::info('Failed decoding xml from: ' . $url);
+
+            return [];
+        }
+
+        return json_decode(json_encode($data), true);
     }
 
     private static function telegramMessage(Game $game): string

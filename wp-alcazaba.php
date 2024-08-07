@@ -72,6 +72,7 @@ require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GameList.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/IsBggItem.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GameRegister.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/BoardgameRepository.php';
+require plugin_dir_path(__FILE__) . 'includes/Alcazaba/BggDataRepository.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/Boardgame.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/TemplateParser.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GameCron.php';
