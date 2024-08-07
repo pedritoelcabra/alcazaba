@@ -147,7 +147,9 @@ class GameCron
         $dataArray = self::getBggXml($bggId);
 
         $repo->saveBggMetadata(
-            $dataArray['item']['name'][0]['@attributes']['value'] ?? $bggId,
+            $dataArray['item']['name'][0]['@attributes']['value']
+                ?? $dataArray['item']['name']['@attributes']['value']
+                ?? $bggId,
             $bggId,
             json_encode($dataArray)
         );
