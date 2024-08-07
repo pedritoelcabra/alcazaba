@@ -49,7 +49,6 @@
                 const end = new Date();
                 end.setDate((new Date()).getDate() - (7 * (i - 1)));
                 const partidasSemana = gameDateTimeObjects.filter(game => game.start > start && game.start < end);
-                const Partidas = partidasSemana.length;
                 const Semana = 52 - i;
                 const Lunes = partidasSemana.filter(game => game.start.getDay() === 1).length;
                 const Martes = partidasSemana.filter(game => game.start.getDay() === 2).length;
@@ -58,7 +57,6 @@
                 const Viernes = partidasSemana.filter(game => game.start.getDay() === 5).length;
                 const Sabado = partidasSemana.filter(game => game.start.getDay() === 6).length;
                 const Domingo = partidasSemana.filter(game => game.start.getDay() === 0).length;
-                data.push({Partidas: Partidas, Semana, Symbol: 'Total Semana'});
                 data.push({Partidas: Lunes, Semana, Symbol: 'Lunes'});
                 data.push({Partidas: Martes, Semana, Symbol: 'Martes'});
                 data.push({Partidas: Miercoles, Semana, Symbol: 'Miercoles'});
