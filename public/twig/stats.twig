@@ -4,6 +4,7 @@
             <select id="select_visualization" onchange="changeProjection(this.value)">
                 <option value="por_semana" selected="selected">Partidas por semana</option>
                 <option value="por_semana_y_dia">Partidas por semana y día</option>
+                <option value="ranking_juegos_partidas">Juegos más jugados (top 20)</option>
             </select>
         </div>
     </div>
@@ -41,6 +42,20 @@
             <label for="8">No Jueves</label>
         </div>
     </div>
+    <div class="row control-rows ranking_juegos_partidas">
+        <div>
+            <input type="button" id="rj12meses" value="Últimos 12 meses" onclick="changeProjection('ranking_juegos_partidas', {months: 12})"/>
+        </div>
+        <div>
+            <input type="button" id="rj6meses" value="Últimos 6 meses" onclick="changeProjection('ranking_juegos_partidas', {months: 6})"/>
+        </div>
+        <div>
+            <input type="button" id="rj3meses" value="Últimos 3 meses" onclick="changeProjection('ranking_juegos_partidas', {months: 3})"/>
+        </div>
+        <div>
+            <input type="button" id="rj1mes" value="Último mes" onclick="changeProjection('ranking_juegos_partidas', {months: 1})"/>
+        </div>
+    </div>
     <div class="row" style="margin-bottom: 10em; margin-top: 1em;">
         <div class='col-sm-12 form-group'>
             <div id="myplot"></div>
@@ -56,10 +71,11 @@
     const plotHeight = 900;
     const plotWidth = 1100;
 
-    window.changeProjection = function(value) {
+    window.changeProjection = function(value, options) {
+        options = options || {};
         jQuery('.control-rows').hide();
         jQuery('.' + value).show();
-        const plot = functions[value]();
+        const plot = functions[value](options);
         const div = document.querySelector("#myplot");
         div.innerHTML = '';
         div.append(plot);
@@ -135,6 +151,37 @@
                 ]
             })
         },
+        ranking_juegos_partidas: function (options) {
+            const data = [];
+            const start = new Date();
+            let days = 360;
+            if (typeof options.months !== 'undefined') {
+                days = options.months * 30;
+            }
+            start.setDate((new Date()).getDate() - days);
+            const partidasRelevantes = gameDateTimeObjects.filter(game => game.start > start && game.name !== '' && game.name !== null);
+            return Plot.plot({
+                width: plotWidth,
+                height: plotHeight,
+                marginLeft: 300,
+                fontSize: 14,
+                x: {
+                    tickSize: 1,
+                    label: "Total de partidas registradas",
+                    grid: 5
+                },
+                y: {
+                    label: "Juego",
+                },
+                marks: [
+                    Plot.ruleX([0]),
+                    Plot.barX(
+                        partidasRelevantes,
+                        Plot.groupY({x: "count"}, {y: "name", sort: { y: "x", reverse: true, limit: 20 }, fill: "steelblue"})
+                    ),
+                ]
+            })
+        }
     };
 
     const gameDateTimes = JSON.parse(atob('{{ gameDateTimes }}'));
