@@ -38,12 +38,22 @@ class BggDataRepository
 
     public function getFirstBggGameNeedingSync(): ?string
     {
-        $bggId = $this->getGameWithoutBggMetadata();
+        $bggId = $this->getGameWithoutBggMetadata('wp_partidas_alcazaba');
         if ($bggId !== null) {
             return $bggId;
         }
 
-        $bggId = $this->getGameWithOutdatedBggMetadata();
+        $bggId = $this->getGameWithoutBggMetadata('wp_juegos_alcazaba');
+        if ($bggId !== null) {
+            return $bggId;
+        }
+
+        $bggId = $this->getGameWithOutdatedBggMetadata('wp_partidas_alcazaba');
+        if ($bggId !== null) {
+            return $bggId;
+        }
+
+        $bggId = $this->getGameWithOutdatedBggMetadata('wp_juegos_alcazaba');
         if ($bggId !== null) {
             return $bggId;
         }
@@ -51,13 +61,13 @@ class BggDataRepository
         return null;
     }
 
-    private function getGameWithoutBggMetadata(): ?string
+    private function getGameWithoutBggMetadata(string $tableName): ?string
     {
         global $wpdb;
 
         $sql = <<<EOF
 SELECT j.bgg_id
-FROM wp_juegos_alcazaba j
+FROM $tableName j
          LEFT JOIN wp_juegos_bgg bgg ON bgg.bgg_id = j.bgg_id
 WHERE bgg.updated_on IS NULL
   AND j.bgg_id IS NOT NULL
@@ -74,13 +84,13 @@ EOF;
         return $results[0]->bgg_id;
     }
 
-    private function getGameWithOutdatedBggMetadata(): ?string
+    private function getGameWithOutdatedBggMetadata(string $tableName): ?string
     {
         global $wpdb;
 
         $sql = <<<EOF
 SELECT j.bgg_id
-FROM wp_juegos_alcazaba j
+FROM $tableName j
          LEFT JOIN wp_juegos_bgg bgg ON bgg.bgg_id = j.bgg_id
 WHERE bgg.updated_on IS NOT NULL
   AND bgg.updated_on < DATE_SUB(NOW(), INTERVAL 3 MONTH)

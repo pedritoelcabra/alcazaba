@@ -26,7 +26,7 @@ class GameRepository
     {
         global $wpdb;
 
-        return $wpdb->get_col("SELECT start_time FROM {$this->tableName()} WHERE 1");
+        return $wpdb->get_results("SELECT p.start_time, bgg.name FROM wp_partidas_alcazaba p LEFT JOIN wp_juegos_bgg bgg ON p.bgg_id = bgg.bgg_id WHERE 1;");
     }
 
     /**

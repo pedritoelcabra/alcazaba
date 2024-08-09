@@ -138,7 +138,10 @@
     };
 
     const gameDateTimes = JSON.parse(atob('{{ gameDateTimes }}'));
-    const gameDateTimeObjects = gameDateTimes.map(startTime => {return {start: new Date(startTime)}});
+    const gameDateTimeObjects = gameDateTimes.map(gameDateTime => {return {
+        start: new Date(gameDateTime.start_time),
+        name: gameDateTime.name,
+    }});
 
     window.changeProjection('por_semana');
 </script>
