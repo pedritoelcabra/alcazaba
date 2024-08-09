@@ -102,6 +102,8 @@ CREATE TABLE IF NOT EXISTS $tableBgg (
       bgg_id bigint(20) DEFAULT NULL,
       name varchar(255) NOT NULL,
       content mediumtext DEFAULT NULL,
+      parent varchar(255) DEFAULT NULL,
+      has_parent TINYINT(1) DEFAULT NULL,
       PRIMARY KEY  (id),
     ) $charset_collate;
 EOF;
