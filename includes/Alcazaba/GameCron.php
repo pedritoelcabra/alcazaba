@@ -11,6 +11,7 @@ class GameCron
         self::bggGameRegisterSyncCron();
         self::bggMetadataSync();
         self::telegramSync();
+        self::setGameParents();
     }
 
     public static function dailyCron(): void
@@ -18,6 +19,42 @@ class GameCron
         Logger::info('Executing daily cron ' . time());
 
         self::telegramDailyUpdate();
+    }
+
+    private static function setGameParents(): void
+    {
+        $repo = new BggDataRepository();
+
+        foreach ($repo->getGamesWithoutSetParent() as $id) {
+            self::setGameParent($id);
+        }
+    }
+
+    private static function setGameParent(string $id): void
+    {
+        $repo = new BggDataRepository();
+
+        $parentId = null;
+        $hasParent = false;
+
+        $metadata = $repo->getGameMetadata($id);
+        if ($metadata !== []) {
+            foreach ($metadata['item']['link'] ?? [] as $link) {
+                if (
+                    ($link['@attributes']['type'] ?? '') !== 'boardgameexpansion'
+                    || ($link['@attributes']['inbound'] ?? '') !== 'true'
+                    || ($link['@attributes']['id'] ?? '') === ''
+                ) {
+                    continue;
+                }
+                $parentId = $link['@attributes']['id'];
+                $hasParent = true;
+
+                break;
+            }
+        }
+
+        $repo->saveGameParent($id, $hasParent, $parentId);
     }
 
     private static function googleSyncCron(): void

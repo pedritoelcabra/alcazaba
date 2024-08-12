@@ -36,6 +36,20 @@ class BggDataRepository
         );
     }
 
+    public function saveGameParent(string $id, bool $hasParent, ?string $parent): void
+    {
+        global $wpdb;
+
+        $wpdb->update(
+            $this->tableName(),
+            [
+                'has_parent' => $hasParent,
+                'parent' => $parent,
+            ],
+            ['id' => $id]
+        );
+    }
+
     public function getFirstBggGameNeedingSync(): ?string
     {
         $bggId = $this->getGameWithoutBggMetadata('wp_partidas_alcazaba');
@@ -106,5 +120,45 @@ EOF;
         }
 
         return $results[0]->bgg_id;
+    }
+
+    public function getGamesWithoutSetParent(): array
+    {
+        global $wpdb;
+
+        $sql = <<<EOF
+SELECT id
+FROM wp_juegos_bgg
+WHERE has_parent IS NULL
+  AND content IS NOT NULL;
+EOF;
+
+        return $wpdb->get_col($sql);
+    }
+
+    public function getGameMetadata(string $id): array
+    {
+        global $wpdb;
+
+        $sql = <<<EOF
+SELECT content
+FROM wp_juegos_bgg
+WHERE id = $id
+  AND content IS NOT NULL;
+EOF;
+
+        $result = $wpdb->get_row($sql);
+
+        if ($result === null) {
+            return [];
+        }
+
+        try {
+            $decoded = json_decode($result->content, true);
+        } catch (Throwable) {
+            return [];
+        }
+
+        return $decoded;
     }
 }
