@@ -7,6 +7,7 @@
                 <option value="por_semana">Partidas por semana</option>
                 <option value="por_semana_y_dia">Partidas por semana y día</option>
                 <option value="por_familia">Según el tipo de juego</option>
+                <option value="por_meses">Visualizar por meses</option>
             </select>
         </div>
     </div>
@@ -45,18 +46,24 @@
         </div>
     </div>
     <div class="row control-rows ranking_juegos_partidas">
-        <div>
-            <input type="button" id="rj12meses" value="Últimos 12 meses" onclick="changeProjection('ranking_juegos_partidas', {months: 12})"/>
-        </div>
-        <div>
-            <input type="button" id="rj6meses" value="Últimos 6 meses" onclick="changeProjection('ranking_juegos_partidas', {months: 6})"/>
-        </div>
-        <div>
-            <input type="button" id="rj3meses" value="Últimos 3 meses" onclick="changeProjection('ranking_juegos_partidas', {months: 3})"/>
-        </div>
-        <div>
-            <input type="button" id="rj1mes" value="Último mes" onclick="changeProjection('ranking_juegos_partidas', {months: 1})"/>
-        </div>
+        <div><input type="button" id="rj12meses" value="Últimos 12 meses" onclick="changeProjection('ranking_juegos_partidas', {months: 12})"/></div>
+        <div><input type="button" id="rj6meses" value="Últimos 6 meses" onclick="changeProjection('ranking_juegos_partidas', {months: 6})"/></div>
+        <div><input type="button" id="rj3meses" value="Últimos 3 meses" onclick="changeProjection('ranking_juegos_partidas', {months: 3})"/></div>
+        <div><input type="button" id="rj1mes" value="Último mes" onclick="changeProjection('ranking_juegos_partidas', {months: 1})"/></div>
+    </div>
+    <div class="row control-rows por_meses">
+        <div><input type="button" id="pm1" value="Enero" onclick="changeProjection('por_meses', {month: 0})"/></div>
+        <div><input type="button" id="pm2" value="Febrero" onclick="changeProjection('por_meses', {month: 1})"/></div>
+        <div><input type="button" id="pm3" value="Marzo" onclick="changeProjection('por_meses', {month: 2})"/></div>
+        <div><input type="button" id="pm4" value="Abril" onclick="changeProjection('por_meses', {month: 3})"/></div>
+        <div><input type="button" id="pm5" value="Mayo" onclick="changeProjection('por_meses', {month: 4})"/></div>
+        <div><input type="button" id="pm6" value="Junio" onclick="changeProjection('por_meses', {month: 5})"/></div>
+        <div><input type="button" id="pm7" value="Julio" onclick="changeProjection('por_meses', {month: 6})"/></div>
+        <div><input type="button" id="pm8" value="Agosto" onclick="changeProjection('por_meses', {month: 7})"/></div>
+        <div><input type="button" id="pm9" value="Septiembre" onclick="changeProjection('por_meses', {month: 8})"/></div>
+        <div><input type="button" id="pm10" value="Octubre" onclick="changeProjection('por_meses', {month: 9})"/></div>
+        <div><input type="button" id="pm11" value="Noviembre" onclick="changeProjection('por_meses', {month: 10})"/></div>
+        <div><input type="button" id="pm12" value="Diciembre" onclick="changeProjection('por_meses', {month: 11})"/></div>
     </div>
     <div class="row" style="margin-bottom: 10em; margin-top: 1em;">
         <div class='col-sm-12 form-group'>
@@ -154,7 +161,6 @@
             })
         },
         ranking_juegos_partidas: function (options) {
-            const data = [];
             const start = new Date();
             let days = 360;
             if (typeof options.months !== 'undefined') {
@@ -184,7 +190,7 @@
                 ]
             })
         },
-        peso_y_frecuencia: function (options) {
+        peso_y_frecuencia: function () {
             const start = new Date();
             start.setDate((new Date()).getDate() - 365);
             const partidasRelevantes = gameDateTimeObjects.filter(game => game.start > start && game.base_name !== '' && game.base_name !== null && game.bgg_weight > 0);
@@ -288,6 +294,8 @@
                 x: {
                     label: "Meses",
                 },
+                width: plotWidth,
+                height: plotHeight,
                 color: {legend: true},
                 marks: [
                     Plot.areaY(
@@ -298,6 +306,30 @@
                         )
                     ),
                     Plot.ruleY([0]),
+                ]
+            })
+        },
+        por_meses: function (options) {
+            const currentMonth = new Date();
+            if (typeof options.month !== 'undefined') {
+                currentMonth.setMonth(options.month);
+            }
+            const partidasRelevantes = gameDateTimeObjects.filter(game => game.start.getMonth() === currentMonth.getMonth() && game.bgg_id !== '');
+            return Plot.plot({
+                inset: 20,
+                width: plotWidth,
+                height: plotHeight,
+                marks: [
+                    Plot.image(
+                        partidasRelevantes,
+                        Plot.dodgeY({
+                            x: "start",
+                            r: 25, // clip to a circle
+                            preserveAspectRatio: "xMidYMin slice", // try not to clip heads
+                            src: "image",
+                            title: "base_name"
+                        })
+                    )
                 ]
             })
         },
