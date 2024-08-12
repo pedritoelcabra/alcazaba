@@ -26,7 +26,24 @@ class GameRepository
     {
         global $wpdb;
 
-        return $wpdb->get_results("SELECT p.start_time, bgg.name FROM wp_partidas_alcazaba p LEFT JOIN wp_juegos_bgg bgg ON p.bgg_id = bgg.bgg_id WHERE 1;");
+        $sql = <<<EOF
+SELECT
+    p.start_time,
+    p.bgg_weight,
+    bgg.name,
+    IF(bgg.has_parent, bgg_p.name, bgg.name) base_name,
+    IF(bgg.has_parent, bgg_p.bgg_id, bgg.bgg_id) base_bgg_id
+FROM
+    wp_partidas_alcazaba p
+LEFT JOIN wp_juegos_bgg bgg ON
+    p.bgg_id = bgg.bgg_id
+LEFT JOIN wp_juegos_bgg bgg_p ON
+    bgg.parent = bgg_p.bgg_id
+WHERE
+    1
+EOF;
+
+        return $wpdb->get_results($sql);
     }
 
     /**
