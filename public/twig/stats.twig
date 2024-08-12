@@ -6,6 +6,7 @@
                 <option value="peso_y_frecuencia">Peso y Frecuencia del top 20</option>
                 <option value="por_semana">Partidas por semana</option>
                 <option value="por_semana_y_dia">Partidas por semana y día</option>
+                <option value="por_familia">Según el tipo de juego</option>
             </select>
         </div>
     </div>
@@ -184,13 +185,8 @@
             })
         },
         peso_y_frecuencia: function (options) {
-            const data = [];
             const start = new Date();
-            let days = 360;
-            if (typeof options.months !== 'undefined') {
-                days = options.months * 30;
-            }
-            start.setDate((new Date()).getDate() - days);
+            start.setDate((new Date()).getDate() - 365);
             const partidasRelevantes = gameDateTimeObjects.filter(game => game.start > start && game.base_name !== '' && game.base_name !== null && game.bgg_weight > 0);
             const selection = {};
             partidasRelevantes.forEach((partida) => {
@@ -215,6 +211,93 @@
                         width: 80,
                         title: "base_name"
                     }),
+                ]
+            })
+        },
+        por_familia: function (options) {
+            const start = new Date();
+            start.setDate((new Date()).getDate() - 365);
+            const end = new Date();
+            const partidasRelevantes = gameDateTimeObjects.filter(game => game.start > start && game.start < end && game.base_name !== '' && game.base_name !== null);
+            const families = {abstracts: 0, cgs: 0, thematic: 0, familygames: 0, childrensgames: 0, partygames:0, strategygames:0, wargames: 0};
+            const data = {};
+            for (let i = 0; i < 12; i++) {
+                const mes = new Date();
+                mes.setMonth(mes.getMonth() - i);
+                data[mes.toLocaleString('es', { month: "long" })] = structuredClone(families);
+            }
+            partidasRelevantes.forEach((partida) => {
+                if (partida.abstracts) {
+                    data[partida.start.toLocaleString('es', { month: "long" })]['abstracts']++;
+                }
+                if (partida.cgs) {
+                    data[partida.start.toLocaleString('es', { month: "long" })]['cgs']++;
+                }
+                if (partida.thematic) {
+                    data[partida.start.toLocaleString('es', { month: "long" })]['thematic']++;
+                }
+                if (partida.familygames) {
+                    data[partida.start.toLocaleString('es', { month: "long" })]['familygames']++;
+                }
+                if (partida.childrensgames) {
+                    data[partida.start.toLocaleString('es', { month: "long" })]['childrensgames']++;
+                }
+                if (partida.partygames) {
+                    data[partida.start.toLocaleString('es', { month: "long" })]['partygames']++;
+                }
+                if (partida.strategygames) {
+                    data[partida.start.toLocaleString('es', { month: "long" })]['strategygames']++;
+                }
+                if (partida.wargames) {
+                    data[partida.start.toLocaleString('es', { month: "long" })]['wargames']++;
+                }
+            });
+            const dataPoints = [];
+            const categories = {
+                abstracts: 'Abstracto',
+                cgs: 'TCG/CCG',
+                thematic: 'Temático',
+                familygames: 'Familiar',
+                childrensgames: 'Infantil',
+                partygames: 'Party',
+                strategygames: 'Euro',
+                wargames: 'Wargame'
+            };
+            for (let i = 11; i >= 0; i--) {
+                const mes = new Date();
+                mes.setMonth(mes.getMonth() - i);
+                if (Object.values(data[mes.toLocaleString('es', { month: "long" })]).reduce((count, carry) => count + carry ) === 0) {
+                    continue;
+                }
+                Object.keys(families).forEach((familyName) => {
+                    const dataPointDate = new Date();
+                    dataPointDate.setMonth(mes.getMonth());
+                    dataPoints.push({
+                        i: 12 - i,
+                        month: mes,
+                        date: dataPointDate,
+                        partidas: data[mes.toLocaleString('es', { month: "long" })][familyName],
+                        family: categories[familyName]
+                    });
+                })
+            }
+            return Plot.plot({
+                y: {
+                    label: "Porcentaje del total",
+                },
+                x: {
+                    label: "Meses",
+                },
+                color: {legend: true},
+                marks: [
+                    Plot.areaY(
+                        dataPoints,
+                        Plot.stackY(
+                            { order: 'sum', reverse: true, offset: "normalize"},
+                            { x: "month", y: "partidas", z: "family", fill: "family"}
+                        )
+                    ),
+                    Plot.ruleY([0]),
                 ]
             })
         },
