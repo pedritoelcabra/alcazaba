@@ -2,10 +2,10 @@
     <div class="row">
         <div class='col-sm-12 form-group'>
             <select id="select_visualization" onchange="changeProjection(this.value)">
-                <option value="por_semana" selected="selected">Partidas por semana</option>
-                <option value="por_semana_y_dia">Partidas por semana y día</option>
-                <option value="ranking_juegos_partidas">Juegos más jugados (top 20)</option>
+                <option value="ranking_juegos_partidas" selected="selected">Juegos más jugados (top 20)</option>
                 <option value="peso_y_frecuencia">Peso y Frecuencia del top 20</option>
+                <option value="por_semana">Partidas por semana</option>
+                <option value="por_semana_y_dia">Partidas por semana y día</option>
             </select>
         </div>
     </div>
@@ -69,8 +69,8 @@
 
     import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm";
 
-    const plotHeight = 900;
-    const plotWidth = 1100;
+    const plotHeight = 600;
+    const plotWidth = 800;
 
     window.changeProjection = function(value, options) {
         options = options || {};
@@ -202,7 +202,7 @@
             })
             const selectionMinGames = Object.values(selection).sort((a, b) => b.played >= a.played).slice(0, 20);
             return Plot.plot({
-                inset: 20,
+                inset: 40,
                 width: plotWidth,
                 height: plotHeight,
                 x: {label: "Cantidad de partidas", type: 'log'},
@@ -229,5 +229,5 @@
             return gameDateTime;
         });
 
-    window.changeProjection('por_semana');
+    window.changeProjection('ranking_juegos_partidas');
 </script>
