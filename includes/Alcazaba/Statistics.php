@@ -5,11 +5,14 @@ class Statistics
     public static function stats(): string
     {
         $gameRepo = new GameRepository();
-        $data = self::extractContents($gameRepo->getAllGameStartTimes());
+        $gameData = self::extractContents($gameRepo->getAllGameStartTimes());
+        $loanRepo = new BoardgameRepository();
+        $loanData = $loanRepo->getAllGamesLoanedFromLudoteca();
         return TemplateParser::fetchTemplate(
             'stats',
             [
-                'gameDateTimes' => base64_encode(json_encode($data))
+                'gameDateTimes' => base64_encode(json_encode($gameData)),
+                'loanDateTimes' => base64_encode(json_encode($loanData)),
             ]
         );
     }

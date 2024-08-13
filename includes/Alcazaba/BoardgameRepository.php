@@ -172,4 +172,28 @@ class BoardgameRepository
 
         $wpdb->query("DELETE FROM {$this->tableName()} WHERE id = $id");
     }
+
+    /**
+     * @return Game[]
+     */
+    public function getAllGamesLoanedFromLudoteca(): array
+    {
+        global $wpdb;
+
+        $sql = <<<EOF
+SELECT
+    j.created_on,
+    bgg.name,
+    log.created_on loaned_on
+FROM wp_juegos_log_alcazaba log
+JOIN wp_juegos_alcazaba j ON
+    j.id = log.game_id
+LEFT JOIN wp_juegos_bgg bgg ON
+    j.bgg_id = bgg.bgg_id
+WHERE
+    1
+EOF;
+
+        return $wpdb->get_results($sql);
+    }
 }

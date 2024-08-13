@@ -3,11 +3,12 @@
         <div class='col-sm-12 form-group'>
             <select id="select_visualization" onchange="changeProjection(this.value)">
                 <option value="ranking_juegos_partidas" selected="selected">Juegos más jugados (top 20)</option>
-                <option value="peso_y_frecuencia">Peso y Frecuencia del top 20</option>
+                <option value="ranking_juegos_ludoteca">Juegos más sacados de la ludoteca (top 20)</option>
+                <option value="peso_y_frecuencia">Peso y Frecuencia del top 20 más jugado</option>
                 <option value="por_semana">Partidas por semana</option>
                 <option value="por_semana_y_dia">Partidas por semana y día</option>
-                <option value="por_familia">Según el tipo de juego</option>
-                <option value="por_meses">Visualizar por meses</option>
+                <option value="por_familia">Partidas según el tipo de juego</option>
+                <option value="por_meses">Visualizar partidas por meses</option>
             </select>
         </div>
     </div>
@@ -50,6 +51,12 @@
         <div><input type="button" id="rj6meses" value="Últimos 6 meses" onclick="changeProjection('ranking_juegos_partidas', {months: 6})"/></div>
         <div><input type="button" id="rj3meses" value="Últimos 3 meses" onclick="changeProjection('ranking_juegos_partidas', {months: 3})"/></div>
         <div><input type="button" id="rj1mes" value="Último mes" onclick="changeProjection('ranking_juegos_partidas', {months: 1})"/></div>
+    </div>
+    <div class="row control-rows ranking_juegos_ludoteca">
+        <div><input type="button" id="rj12meses" value="Últimos 12 meses" onclick="changeProjection('ranking_juegos_ludoteca', {months: 12})"/></div>
+        <div><input type="button" id="rj6meses" value="Últimos 6 meses" onclick="changeProjection('ranking_juegos_ludoteca', {months: 6})"/></div>
+        <div><input type="button" id="rj3meses" value="Últimos 3 meses" onclick="changeProjection('ranking_juegos_ludoteca', {months: 3})"/></div>
+        <div><input type="button" id="rj1mes" value="Último mes" onclick="changeProjection('ranking_juegos_ludoteca', {months: 1})"/></div>
     </div>
     <div class="row control-rows por_meses">
         <div><input type="button" id="pm1" value="Enero" onclick="changeProjection('por_meses', {month: 0})"/></div>
@@ -186,6 +193,36 @@
                     Plot.barX(
                         partidasRelevantes,
                         Plot.groupY({x: "count"}, {y: "base_name", sort: { y: "x", reverse: true, limit: 20 }, fill: "steelblue"})
+                    ),
+                ]
+            })
+        },
+        ranking_juegos_ludoteca: function (options) {
+            const start = new Date();
+            let days = 360;
+            if (typeof options.months !== 'undefined') {
+                days = options.months * 30;
+            }
+            start.setDate((new Date()).getDate() - days);
+            const partidasRelevantes = loanDateTimeObjects.filter(game => game.start > start && game.name !== '' && game.name !== null);
+            return Plot.plot({
+                width: plotWidth,
+                height: plotHeight,
+                marginLeft: 300,
+                fontSize: 14,
+                x: {
+                    tickSize: 1,
+                    label: "Total de veces sacado",
+                    grid: 5
+                },
+                y: {
+                    label: "Juego",
+                },
+                marks: [
+                    Plot.ruleX([0]),
+                    Plot.barX(
+                        partidasRelevantes,
+                        Plot.groupY({x: "count"}, {y: "name", sort: { y: "x", reverse: true, limit: 20 }, fill: "darksalmon"})
                     ),
                 ]
             })
@@ -340,8 +377,13 @@
             gameDateTime.start = new Date(gameDateTime.start_time);
             gameDateTime.image = window.location.origin + '/wp-content/plugins/wp-alcazaba/public/image/games/' + gameDateTime.base_bgg_id + '.jpg';
             gameDateTime.bgg_weight = Number(gameDateTime.bgg_weight);
-            gameDateTime.xs = Math.random();
             return gameDateTime;
+        });
+
+    const loanDateTimeObjects = JSON.parse(atob('{{ loanDateTimes }}'))
+        .map(loanDateTime => {
+            loanDateTime.start = new Date(loanDateTime.loaned_on);
+            return loanDateTime;
         });
 
     window.changeProjection('ranking_juegos_partidas');
