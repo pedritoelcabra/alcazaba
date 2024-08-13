@@ -9,7 +9,7 @@
                 <option value="por_semana_y_dia">Partidas por semana y día</option>
                 <option value="por_familia">Partidas según el tipo de juego</option>
                 <option value="por_meses">Visualizar partidas por meses</option>
-                <option value="socios_registrados">Socios registrados en la web</option>
+                <option value="socios_registrados">Usuarios registrados en la web</option>
             </select>
         </div>
     </div>
@@ -124,15 +124,25 @@
                 start.setDate((new Date()).getDate() - (7 * i));
                 const end = new Date();
                 end.setDate((new Date()).getDate() - (7 * (i - 1)));
-                const sociosRegistrados = userDateTimeObjects.filter(game => game.start < end);
-                const Socios = sociosRegistrados.length;
+                const sociosRegistradosTelegram = userDateTimeObjects.filter(user => user.start < end && user.user_email === '');
+                const sociosRegistradosEmail = userDateTimeObjects.filter(user => user.start < end && user.user_email !== '');
                 const Semana = end;
-                totalSocios.push({Socios, Semana});
+                totalSocios.push({Socios: sociosRegistradosTelegram.length, Semana, Tipo: 'Telegram'});
+                totalSocios.push({Socios: sociosRegistradosEmail.length, Semana, Tipo: 'Email'});
             }
             return Plot.plot({
                 width: plotWidth,
                 height: plotHeight,
-                marks: [Plot.lineY(totalSocios, Plot.windowY(3, {x: "Semana", y: "Socios"}))]
+                color: {legend: true},
+                marks: [
+                    Plot.areaY(
+                        totalSocios,
+                        Plot.stackY(
+                            { order: 'sum', reverse: true},
+                            { x: "Semana", y: "Socios", z: "Tipo", fill: "Tipo"}
+                        )
+                    ),
+                ]
             })
         },
         por_semana_y_dia: function () {
@@ -153,28 +163,28 @@
                 const Sabado = partidasSemana.filter(game => game.start.getDay() === 6).length;
                 const Domingo = partidasSemana.filter(game => game.start.getDay() === 0).length;
                 if (jQuery('#sdLunes').is(":checked")) {
-                    data.push({Partidas: Lunes, end, Symbol: 'Lunes'});
+                    data.push({Partidas: Lunes, Semana: end, Symbol: 'Lunes'});
                 }
                 if (jQuery('#sdMartes').is(":checked")) {
-                    data.push({Partidas: Martes, end, Symbol: 'Martes'});
+                    data.push({Partidas: Martes, Semana: end, Symbol: 'Martes'});
                 }
                 if (jQuery('#sdMiercoles').is(":checked")) {
-                    data.push({Partidas: Miercoles, end, Symbol: 'Miercoles'});
+                    data.push({Partidas: Miercoles, Semana: end, Symbol: 'Miercoles'});
                 }
                 if (jQuery('#sdJueves').is(":checked")) {
-                    data.push({Partidas: Jueves, end, Symbol: 'Jueves'});
+                    data.push({Partidas: Jueves, Semana: end, Symbol: 'Jueves'});
                 }
                 if (jQuery('#sdViernes').is(":checked")) {
-                    data.push({Partidas: Viernes, end, Symbol: 'Viernes'});
+                    data.push({Partidas: Viernes, Semana: end, Symbol: 'Viernes'});
                 }
                 if (jQuery('#sdSabado').is(":checked")) {
-                    data.push({Partidas: Sabado, end, Symbol: 'Sabado'});
+                    data.push({Partidas: Sabado, Semana: end, Symbol: 'Sabado'});
                 }
                 if (jQuery('#sdDomingo').is(":checked")) {
-                    data.push({Partidas: Domingo, end, Symbol: 'Domingo'});
+                    data.push({Partidas: Domingo, Semana: end, Symbol: 'Domingo'});
                 }
                 if (jQuery('#sdNoJueves').is(":checked")) {
-                    data.push({Partidas: NoJueves, end, Symbol: 'No Jueves'});
+                    data.push({Partidas: NoJueves, Semana: end, Symbol: 'No Jueves'});
                 }
             }
             return Plot.plot({
