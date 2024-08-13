@@ -297,7 +297,7 @@
                 selection[partida.base_bgg_id]['bgg_weight'] = partida.bgg_weight;
                 selection[partida.base_bgg_id]['base_name'] = partida.base_name;
             })
-            const selectionMinGames = Object.values(selection).sort((a, b) => b.played >= a.played).slice(0, 20);
+            const selectionMinGames = Object.values(selection).sort((a, b) => b.played - a.played).slice(0, 20);
             return Plot.plot({
                 inset: 40,
                 width: plotWidth,
