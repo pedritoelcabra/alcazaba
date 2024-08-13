@@ -9,6 +9,7 @@
                 <option value="por_semana_y_dia">Partidas por semana y día</option>
                 <option value="por_familia">Partidas según el tipo de juego</option>
                 <option value="por_meses">Visualizar partidas por meses</option>
+                <option value="socios_registrados">Socios registrados en la web</option>
             </select>
         </div>
     </div>
@@ -107,13 +108,31 @@
                 end.setDate((new Date()).getDate() - (7 * (i - 1)));
                 const partidasSemana = gameDateTimeObjects.filter(game => game.start > start && game.start < end);
                 const Partidas = partidasSemana.length;
-                const Semana = 52 - i;
+                const Semana = end;
                 data.push({Partidas, Semana});
             }
             return Plot.plot({
                 width: plotWidth,
                 height: plotHeight,
                 marks: [Plot.lineY(data, Plot.windowY(3, {x: "Semana", y: "Partidas"}))]
+            })
+        },
+        socios_registrados: function () {
+            const totalSocios = [];
+            for (let i = 52; i > 0; i--) {
+                const start = new Date();
+                start.setDate((new Date()).getDate() - (7 * i));
+                const end = new Date();
+                end.setDate((new Date()).getDate() - (7 * (i - 1)));
+                const sociosRegistrados = userDateTimeObjects.filter(game => game.start < end);
+                const Socios = sociosRegistrados.length;
+                const Semana = end;
+                totalSocios.push({Socios, Semana});
+            }
+            return Plot.plot({
+                width: plotWidth,
+                height: plotHeight,
+                marks: [Plot.lineY(totalSocios, Plot.windowY(3, {x: "Semana", y: "Socios"}))]
             })
         },
         por_semana_y_dia: function () {
@@ -134,28 +153,28 @@
                 const Sabado = partidasSemana.filter(game => game.start.getDay() === 6).length;
                 const Domingo = partidasSemana.filter(game => game.start.getDay() === 0).length;
                 if (jQuery('#sdLunes').is(":checked")) {
-                    data.push({Partidas: Lunes, Semana, Symbol: 'Lunes'});
+                    data.push({Partidas: Lunes, end, Symbol: 'Lunes'});
                 }
                 if (jQuery('#sdMartes').is(":checked")) {
-                    data.push({Partidas: Martes, Semana, Symbol: 'Martes'});
+                    data.push({Partidas: Martes, end, Symbol: 'Martes'});
                 }
                 if (jQuery('#sdMiercoles').is(":checked")) {
-                    data.push({Partidas: Miercoles, Semana, Symbol: 'Miercoles'});
+                    data.push({Partidas: Miercoles, end, Symbol: 'Miercoles'});
                 }
                 if (jQuery('#sdJueves').is(":checked")) {
-                    data.push({Partidas: Jueves, Semana, Symbol: 'Jueves'});
+                    data.push({Partidas: Jueves, end, Symbol: 'Jueves'});
                 }
                 if (jQuery('#sdViernes').is(":checked")) {
-                    data.push({Partidas: Viernes, Semana, Symbol: 'Viernes'});
+                    data.push({Partidas: Viernes, end, Symbol: 'Viernes'});
                 }
                 if (jQuery('#sdSabado').is(":checked")) {
-                    data.push({Partidas: Sabado, Semana, Symbol: 'Sabado'});
+                    data.push({Partidas: Sabado, end, Symbol: 'Sabado'});
                 }
                 if (jQuery('#sdDomingo').is(":checked")) {
-                    data.push({Partidas: Domingo, Semana, Symbol: 'Domingo'});
+                    data.push({Partidas: Domingo, end, Symbol: 'Domingo'});
                 }
                 if (jQuery('#sdNoJueves').is(":checked")) {
-                    data.push({Partidas: NoJueves, Semana, Symbol: 'No Jueves'});
+                    data.push({Partidas: NoJueves, end, Symbol: 'No Jueves'});
                 }
             }
             return Plot.plot({
@@ -383,6 +402,12 @@
     const loanDateTimeObjects = JSON.parse(atob('{{ loanDateTimes }}'))
         .map(loanDateTime => {
             loanDateTime.start = new Date(loanDateTime.loaned_on);
+            return loanDateTime;
+        });
+
+    const userDateTimeObjects = JSON.parse(atob('{{ userDateTimes }}'))
+        .map(loanDateTime => {
+            loanDateTime.start = new Date(loanDateTime.user_registered);
             return loanDateTime;
         });
 
