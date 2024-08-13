@@ -10,6 +10,7 @@
                 <option value="por_familia">Partidas según el tipo de juego</option>
                 <option value="por_meses">Visualizar partidas por meses</option>
                 <option value="socios_registrados">Usuarios registrados en la web</option>
+                <option value="ludoteca_registrados">Juegos registrados en la ludoteca</option>
             </select>
         </div>
     </div>
@@ -140,6 +141,34 @@
                         Plot.stackY(
                             { order: 'sum', reverse: true},
                             { x: "Semana", y: "Socios", z: "Tipo", fill: "Tipo"}
+                        )
+                    ),
+                ]
+            })
+        },
+        ludoteca_registrados: function () {
+            const totalJuegos = [];
+            for (let i = 52; i > 0; i--) {
+                const start = new Date();
+                start.setDate((new Date()).getDate() - (7 * i));
+                const end = new Date();
+                end.setDate((new Date()).getDate() - (7 * (i - 1)));
+                const juegosRegistrados = ludoDateTimeObjects.filter(game => game.start < end && game.loanable === '1');
+                const juegosRegistradosSocio = ludoDateTimeObjects.filter(game => game.start < end && game.loanable === '0');
+                const Semana = end;
+                totalJuegos.push({Juegos: juegosRegistrados.length, Semana, Tipo: 'Club'});
+                totalJuegos.push({Juegos: juegosRegistradosSocio.length, Semana, Tipo: 'Socio'});
+            }
+            return Plot.plot({
+                width: plotWidth,
+                height: plotHeight,
+                color: {legend: true},
+                marks: [
+                    Plot.areaY(
+                        totalJuegos,
+                        Plot.stackY(
+                            { order: 'sum', reverse: true},
+                            { x: "Semana", y: "Juegos", z: "Tipo", fill: "Tipo"}
                         )
                     ),
                 ]
@@ -419,6 +448,12 @@
         .map(loanDateTime => {
             loanDateTime.start = new Date(loanDateTime.user_registered);
             return loanDateTime;
+        });
+
+    const ludoDateTimeObjects = JSON.parse(atob('{{ ludotecaDateTimes }}'))
+        .map(ludoDateTime => {
+            ludoDateTime.start = new Date(ludoDateTime.created_on);
+            return ludoDateTime;
         });
 
     window.changeProjection('ranking_juegos_partidas');

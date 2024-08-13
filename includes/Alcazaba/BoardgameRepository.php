@@ -196,4 +196,21 @@ EOF;
 
         return $wpdb->get_results($sql);
     }
+
+    /**
+     * @return Game[]
+     */
+    public function getAllGamesRegisteredInLudoteca(): array
+    {
+        global $wpdb;
+
+        $sql = <<<EOF
+SELECT j.created_on, j.loanable, bgg.name
+FROM wp_juegos_alcazaba j
+         LEFT JOIN wp_juegos_bgg bgg ON j.bgg_id = bgg.bgg_id
+WHERE 1; 
+EOF;
+
+        return $wpdb->get_results($sql);
+    }
 }

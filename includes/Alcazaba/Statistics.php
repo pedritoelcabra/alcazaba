@@ -8,6 +8,7 @@ class Statistics
         $gameData = self::extractContents($gameRepo->getAllGameStartTimes());
         $loanRepo = new BoardgameRepository();
         $loanData = $loanRepo->getAllGamesLoanedFromLudoteca();
+        $ludotecaData = $loanRepo->getAllGamesRegisteredInLudoteca();
         $userRepo = new UserDataRepository();
         $userData = $userRepo->getAllUserSignUpData();
         return TemplateParser::fetchTemplate(
@@ -15,6 +16,7 @@ class Statistics
             [
                 'gameDateTimes' => base64_encode(json_encode($gameData)),
                 'loanDateTimes' => base64_encode(json_encode($loanData)),
+                'ludotecaDateTimes' => base64_encode(json_encode($ludotecaData)),
                 'userDateTimes' => base64_encode(json_encode($userData)),
             ]
         );
