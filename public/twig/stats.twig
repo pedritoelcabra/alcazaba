@@ -11,6 +11,7 @@
                 <option value="por_meses">Visualizar partidas por meses</option>
                 <option value="socios_registrados">Usuarios registrados en la web</option>
                 <option value="ludoteca_registrados">Juegos registrados en la ludoteca</option>
+                <option value="por_juego">Detalle de actividad por juego</option>
             </select>
         </div>
     </div>
@@ -73,6 +74,12 @@
         <div><input type="button" id="pm10" value="Octubre" onclick="changeProjection('por_meses', {month: 9})"/></div>
         <div><input type="button" id="pm11" value="Noviembre" onclick="changeProjection('por_meses', {month: 10})"/></div>
         <div><input type="button" id="pm12" value="Diciembre" onclick="changeProjection('por_meses', {month: 11})"/></div>
+    </div>
+    <div class="row control-rows por_juego">
+        <div style="width: 100%;text-align: center;">
+            <select style="width: 50%;" id="game-select" onchange="changeProjection('por_juego', {gameName: this.value}); this.value = '';"></select>
+            <input type="button" id="clear" value="Limpiar" onclick="changeProjection('por_juego', {gameName: 'clear'})"/>
+        </div>
     </div>
     <div class="row" style="margin-bottom: 10em; margin-top: 1em;">
         <div class='col-sm-12 form-group'>
@@ -182,7 +189,6 @@
                 const end = new Date();
                 end.setDate((new Date()).getDate() - (7 * (i - 1)));
                 const partidasSemana = gameDateTimeObjects.filter(game => game.start > start && game.start < end);
-                const Semana = 52 - i;
                 const Lunes = partidasSemana.filter(game => game.start.getDay() === 1).length;
                 const Martes = partidasSemana.filter(game => game.start.getDay() === 2).length;
                 const Miercoles = partidasSemana.filter(game => game.start.getDay() === 3).length;
@@ -315,7 +321,7 @@
                 ]
             })
         },
-        por_familia: function (options) {
+        por_familia: function () {
             const start = new Date();
             start.setDate((new Date()).getDate() - 365);
             const end = new Date();
@@ -428,10 +434,53 @@
                 ]
             })
         },
+        por_juego: function (options) {
+            const data = [];
+            if (typeof options.gameName !== 'undefined') {
+                selectedGameNames.push(options.gameName);
+                if (options.gameName === 'clear') {
+                    selectedGameNames.length = 0;
+                }
+            }
+            if (selectedGameNames.length === 0) {
+                return Plot.plot({});
+            }
+            const start = new Date();
+            start.setDate((new Date()).getDate() - 365);
+            const end = new Date();
+            const partidasRelevantes = gameDateTimeObjects.filter(game => game.start > start && game.start < end && game.base_name !== '' && game.base_name !== null);
+            const ludotecaRelevantes = loanDateTimeObjects.filter(game => game.start > start && game.start < end && game.base_name !== '' && game.base_name !== null);
+            for (let i = 0; i <= 11; i++) {
+                selectedGameNames.forEach(gameName => {
+                    const partidasMes = partidasRelevantes.filter(game => {
+                        return game.start.getMonth() === i && (game.name === gameName || game.base_name === gameName)
+                    });
+                    const ludotecaMes = ludotecaRelevantes.filter(game => {
+                        return game.start.getMonth() === i && (game.name === gameName || game.base_name === gameName)
+                    });
+                    const Partidas = ludotecaMes.length + partidasMes.length;
+                    data.push({Partidas, Mes: i + 1, Symbol: gameName});
+                });
+            }
+            return Plot.plot({
+                y: {
+                    label: "Partidas registradas + Préstamos ludoteca",
+                },
+                x: {axis: null},
+                width: plotWidth,
+                height: plotHeight,
+                color: {legend: true},
+                marks: [Plot.barY(data, {x: "Symbol", y: "Partidas", fx: "Mes", fill: "Symbol"})]
+            })
+        },
     };
+
+    const selectedGameNames = [];
+    const allGameNames = [];
 
     const gameDateTimeObjects = JSON.parse(atob('{{ gameDateTimes }}'))
         .map(gameDateTime => {
+            allGameNames.push(gameDateTime.name);
             gameDateTime.start = new Date(gameDateTime.start_time);
             gameDateTime.image = window.location.origin + '/wp-content/plugins/wp-alcazaba/public/image/games/' + gameDateTime.base_bgg_id + '.jpg';
             gameDateTime.bgg_weight = Number(gameDateTime.bgg_weight);
@@ -440,6 +489,7 @@
 
     const loanDateTimeObjects = JSON.parse(atob('{{ loanDateTimes }}'))
         .map(loanDateTime => {
+            allGameNames.push(loanDateTime.name);
             loanDateTime.start = new Date(loanDateTime.loaned_on);
             return loanDateTime;
         });
@@ -455,6 +505,14 @@
             ludoDateTime.start = new Date(ludoDateTime.created_on);
             return ludoDateTime;
         });
+
+    const uniqueNames = Array.from(new Set(allGameNames.filter(name => name !== null && name !== '')));
+    uniqueNames.sort();
+
+    jQuery('#game-select').append(jQuery('<option>', {value: '', text: 'Elige juegos'}));
+    uniqueNames.forEach(name => {
+        jQuery('#game-select').append(jQuery('<option>', {value: name, text: name}));
+    });
 
     window.changeProjection('ranking_juegos_partidas');
 </script>
