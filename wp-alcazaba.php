@@ -84,6 +84,7 @@ require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GamePlayer.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GameRepository.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/GamePlayerRepository.php';
 require plugin_dir_path(__FILE__) . 'includes/Alcazaba/Logger.php';
+require plugin_dir_path(__FILE__) . 'includes/Alcazaba/TelegramBot/TelegramBot.php';
 
 /**
  * Begins execution of the plugin.

@@ -138,6 +138,8 @@ class Plugin_Name_Public
 
         add_action('wp_ajax_search_game', ['GameList', 'ajaxListGames']);
         add_action('wp_ajax_nopriv_search_game', ['GameList', 'ajaxListGames']);
+        add_action('wp_ajax_telegram_bot', ['TelegramBot', 'execute']);
+        add_action('wp_ajax_nopriv_telegram_bot', ['TelegramBot', 'execute']);
 
         add_action('al_cron_hook', ['GameCron', 'cron']);
         add_action('al_cron_hook_daily', ['GameCron', 'dailyCron']);

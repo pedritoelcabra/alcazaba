@@ -115,7 +115,7 @@ class GameCron
         file_get_contents($url);
     }
 
-    private static function getTelegramCredentials(): array
+    public static function getTelegramCredentials(): array
     {
         try {
             $credentials = json_decode(file_get_contents(plugin_dir_path(__FILE__) . 'telegram.json'), 1);
