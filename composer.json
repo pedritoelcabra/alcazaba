@@ -1,7 +1,8 @@
 {
     "require": {
         "timber/timber": "^1.0",
-        "google/apiclient": "^2.15.0"
+        "google/apiclient": "^2.15.0",
+        "longman/telegram-bot": "^0.83.1"
     },
     "config": {
         "allow-plugins": {
