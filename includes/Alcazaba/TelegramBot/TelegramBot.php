@@ -10,6 +10,8 @@ use Longman\TelegramBot\Telegram;
 
 class TelegramBot
 {
+    public const META_KEY = 'wp_bot_subscription';
+
     public static function execute(): void
     {
         if (($_REQUEST['activate'] ?? false) !== false) {
@@ -18,11 +20,12 @@ class TelegramBot
             return;
         }
 
+        Logger::info('Telegram hook called');
+
         $telegram = self::telegram();
 
         try {
             $telegram->handle();
-            Logger::info('Telegram hook called ', [$telegram->getCommandClasses()]);
         } catch (Throwable $e) {
             Logger::info('Telegram handle error');
             Logger::info($e->getMessage());
@@ -68,5 +71,39 @@ class TelegramBot
         }
 
         throw new RuntimeException('Telegram error');
+    }
+
+    public static function userIsSubscribed(int $userId): bool
+    {
+        return get_user_meta($userId, self::META_KEY, true) === 'true';
+    }
+
+    public static function subscribeUser(int $userId): void
+    {
+        update_user_meta($userId, self::META_KEY, 'true');
+    }
+
+    public static function unsubscribeUser(int $userId): void
+    {
+        update_user_meta($userId, self::META_KEY, 'false');
+    }
+
+    public static function getUserIdFromTelegramId(string $telegramId): ?int
+    {
+        global $wpdb;
+
+        $sql = <<<EOF
+SELECT user_id
+FROM wp_usermeta
+WHERE meta_value = '$telegramId'
+  AND meta_key = 'wptelegram_user_id';
+EOF;
+
+        $result = $wpdb->get_row($sql);
+        if ($result === null) {
+            return null;
+        }
+
+        return (int)$result->user_id;
     }
 }
