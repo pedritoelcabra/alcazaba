@@ -29,6 +29,6 @@ class SubscribeCommand extends UserCommand
 
         TelegramBot::subscribeUser($id);
 
-        return $this->replyToChat('Te has suscrito a actualizaciones de la web. Te avisamos de cualquier cambio en tus partidas! ' . $id);
+        return $this->replyToChat('Te has suscrito a actualizaciones de la web. Te avisamos de cualquier cambio en tus partidas!');
     }
 }
