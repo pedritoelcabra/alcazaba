@@ -81,7 +81,7 @@ class GameCron
 
             Logger::info('Sending to telegram: ' . $game->id);
 
-            self::sendToTelegram(self::telegramMessage($game));
+            self::sendToTelegram(self::telegramPublicationMessage($game));
         }
     }
 
@@ -246,7 +246,7 @@ class GameCron
         return json_decode(json_encode($data), true);
     }
 
-    private static function telegramMessage(Game $game): string
+    private static function telegramPublicationMessage(Game $game): string
     {
         $name = $game->name;
         $formatter = new IntlDateFormatter(
@@ -276,6 +276,36 @@ class GameCron
 <strong>-- $name --</strong>
 <strong>$day</strong>$bggLink
 Creada por: {$createdBy}{$abierta}{$joinLink}{$description}
+EOF;
+    }
+
+    public static function telegramUpdateMessage(Game $game, string $message, bool $showLink): string
+    {
+        $name = $game->name;
+        $formatter = new IntlDateFormatter(
+            'es',
+            IntlDateFormatter::LONG,
+            IntlDateFormatter::SHORT,
+            'Europe/Madrid',
+        );
+        $formatter->setPattern("eeee, dd 'de' MMMM 'a las' HH:mm");
+        $day = ucfirst($formatter->format($game->startTime));
+        $alcazabaLink = 'https://alcazabadejuegos.es/lista-de-partidas/';
+        $webLink = $showLink ? PHP_EOL . sprintf('<a target="_blank" href="%s">Ver en la web</a>', $alcazabaLink) : '';
+        $players = '';
+        if ($game->currentPlayers() > 0) {
+            $players .= PHP_EOL . 'Jugadores:';
+            foreach ($game->players as $player) {
+                $players .= PHP_EOL . ' - ' . $player->name;
+            }
+            $players .= PHP_EOL;
+        }
+        return <<<EOF
+<i>{$message}:</i>
+
+<strong>-- $name --</strong>
+<strong>$day</strong>
+$players$webLink
 EOF;
     }
 

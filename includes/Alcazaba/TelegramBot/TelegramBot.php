@@ -125,7 +125,7 @@ EOF;
             "https://api.telegram.org/bot%s/sendMessage?parse_mode=HTML&chat_id=%s&text=%s",
             $credentials['bot'],
             $telegramId,
-            $message
+            urlencode($message)
         );
 
         $ch = curl_init();

@@ -71,6 +71,9 @@ class GameList
         self::playerRepo()->joinGame($gameId, $playerId);
         self::queueGameForSync($game);
 
+        $game = self::gameRepo()->get($gameId);
+        self::sendGameUpdateToPlayers($game, sprintf('%s se ha unido a la partida', wp_get_current_user()->display_name));
+
         wp_redirect('/lista-de-partidas');
         exit;
     }
@@ -89,6 +92,9 @@ class GameList
 
         self::playerRepo()->leaveGame($gameId, $playerId);
         self::queueGameForSync($game);
+
+        $game = self::gameRepo()->get($gameId);
+        self::sendGameUpdateToPlayers($game, sprintf('%s se ha ido de la partida', wp_get_current_user()->display_name));
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -341,5 +347,13 @@ class GameList
                 'topGames' => self::gameRepo()->getTopGames(),
             ]
         );
+    }
+
+    private static function sendGameUpdateToPlayers(Game $game, string $message): void
+    {
+        $update = GameCron::telegramUpdateMessage($game, $message, true);
+        foreach ($game->players as $player) {
+            TelegramBot::sendMessageToTelegramUser($update, $player->playerId);
+        }
     }
 }
