@@ -109,8 +109,32 @@ EOF;
         return (int)$result->user_id;
     }
 
-    public static function sendMessageToTelegramUser(): void
+    public static function sendMessageToTelegramUser(string $message, int $userId): void
     {
-        $telegram = self::telegram();
+        if (! self::userIsSubscribed($userId)) {
+            return;
+        }
+        if ($userId !== 3) {
+            return;
+        }
+
+        $telegramId = get_user_meta($userId, self::META_KEY, true);
+        $credentials = GameCron::getTelegramCredentials();
+
+        $url = sprintf(
+            "https://api.telegram.org/bot%s/sendMessage?parse_mode=HTML&chat_id=%s&text=%s",
+            $credentials['bot'],
+            $telegramId,
+            $message
+        );
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 100);
+
+        curl_exec($ch);
+        curl_close($ch);
     }
 }
