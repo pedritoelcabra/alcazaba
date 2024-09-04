@@ -46,6 +46,10 @@ class GameList
         if ($game !== null && $game->gcalId !== null) {
             GoogleSync::deleteFromCalendar($game->gcalId);
         }
+
+        if ($game !== null) {
+            self::sendGameUpdateToPlayers($game, 'La partida ha sido borrada', false);
+        }
         self::gameRepo()->delete($id);
 
         wp_redirect('/lista-de-partidas');
@@ -119,6 +123,9 @@ class GameList
         self::playerRepo()->increaseAmount($gameId, $playerId);
         self::queueGameForSync($game);
 
+        $game = self::gameRepo()->get($gameId);
+        self::sendGameUpdateToPlayers($game, sprintf('%s ha metido jugadores adicionales', wp_get_current_user()->display_name));
+
         wp_redirect('/lista-de-partidas');
         exit;
     }
@@ -137,6 +144,9 @@ class GameList
 
         self::playerRepo()->decreaseAmount($gameId, $playerId);
         self::queueGameForSync($game);
+
+        $game = self::gameRepo()->get($gameId);
+        self::sendGameUpdateToPlayers($game, sprintf('%s ha quitado jugadores adicionales', wp_get_current_user()->display_name));
 
         wp_redirect('/lista-de-partidas');
         exit;
@@ -185,6 +195,9 @@ class GameList
             self::gameRepo()->update($updatedGame);
 
             self::queueGameForSync($game);
+
+            $game = self::gameRepo()->get($gameId);
+            self::sendGameUpdateToPlayers($game, 'La partida ha sido modificada');
 
             wp_redirect('/lista-de-partidas');
             exit;
@@ -349,11 +362,18 @@ class GameList
         );
     }
 
-    private static function sendGameUpdateToPlayers(Game $game, string $message): void
+    private static function sendGameUpdateToPlayers(Game $game, string $message, $showLink = true): void
     {
-        $update = GameCron::telegramUpdateMessage($game, $message, true);
+        $update = GameCron::telegramUpdateMessage($game, $message, $showLink);
+        $hasSentToAdmin = false;
         foreach ($game->players as $player) {
             TelegramBot::sendMessageToTelegramUser($update, $player->playerId);
+            if ($player->playerId === 3) {
+                $hasSentToAdmin = true;
+            }
+        }
+        if (!$hasSentToAdmin) {
+            TelegramBot::sendMessageToTelegramUser($update, 3);
         }
     }
 }

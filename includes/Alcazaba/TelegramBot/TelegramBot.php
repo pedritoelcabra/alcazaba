@@ -114,7 +114,11 @@ EOF;
         if (! self::userIsSubscribed($userId)) {
             return;
         }
-        if ($userId !== 3) {
+        $betaIds = [
+            3,
+            23,
+        ];
+        if (! in_array($userId, $betaIds)) {
             return;
         }
 

@@ -296,7 +296,7 @@ EOF;
         if ($game->currentPlayers() > 0) {
             $players .= PHP_EOL . 'Jugadores:';
             foreach ($game->players as $player) {
-                $players .= PHP_EOL . ' - ' . $player->name;
+                $players .= PHP_EOL . ' - ' . $player->name . ($player->amount > 1 ? ' x' . $player->amount : '');
             }
             $players .= PHP_EOL;
         }
