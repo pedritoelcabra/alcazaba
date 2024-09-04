@@ -75,17 +75,19 @@ class TelegramBot
 
     public static function userIsSubscribed(int $userId): bool
     {
-        return get_user_meta($userId, self::META_KEY, true) === 'true';
+        $meta = get_user_meta($userId, self::META_KEY, true);
+
+        return is_string($meta) && $meta !== '';
     }
 
-    public static function subscribeUser(int $userId): void
+    public static function subscribeUser(int $userId, int $chatId): void
     {
-        update_user_meta($userId, self::META_KEY, 'true');
+        update_user_meta($userId, self::META_KEY, (string) $chatId);
     }
 
     public static function unsubscribeUser(int $userId): void
     {
-        update_user_meta($userId, self::META_KEY, 'false');
+        update_user_meta($userId, self::META_KEY, '');
     }
 
     public static function getUserIdFromTelegramId(string $telegramId): ?int
@@ -105,5 +107,10 @@ EOF;
         }
 
         return (int)$result->user_id;
+    }
+
+    public static function sendMessageToTelegramUser(): void
+    {
+        $telegram = self::telegram();
     }
 }
