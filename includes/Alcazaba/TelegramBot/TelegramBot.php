@@ -114,13 +114,6 @@ EOF;
         if (! self::userIsSubscribed($userId)) {
             return;
         }
-        $betaIds = [
-            3,
-            23,
-        ];
-        if (! in_array($userId, $betaIds)) {
-            return;
-        }
 
         $telegramId = get_user_meta($userId, self::META_KEY, true);
         $credentials = GameCron::getTelegramCredentials();
