@@ -34,6 +34,10 @@ class Game
             throw new Exception('El nombre debe tener mínimo 3 caracteres.');
         }
 
+        if (strlen($name) > 55) {
+            return substr($name, 0, 55);
+        }
+
         return $name;
     }
 
